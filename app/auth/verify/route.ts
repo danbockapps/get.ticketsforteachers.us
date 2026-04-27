@@ -3,17 +3,24 @@ import {validateMagicLinkToken} from '@/lib/tokens'
 import {lucia} from '@/lib/auth'
 import {cookies} from 'next/headers'
 
+function baseUrl(request: NextRequest): string {
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? 'localhost:3000'
+  const proto = request.headers.get('x-forwarded-proto') ?? 'https'
+  return `${proto}://${host}`
+}
+
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token')
+  const base = baseUrl(request)
 
   if (!token) {
-    return NextResponse.redirect(new URL('/login?error=invalid', request.url))
+    return NextResponse.redirect(new URL('/login?error=invalid', base))
   }
 
   const result = await validateMagicLinkToken(token)
 
   if (!result) {
-    return NextResponse.redirect(new URL('/login?error=expired', request.url))
+    return NextResponse.redirect(new URL('/login?error=expired', base))
   }
 
   const session = await lucia.createSession(result.userId, {})
@@ -22,5 +29,5 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies()
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
-  return NextResponse.redirect(new URL('/', request.url))
+  return NextResponse.redirect(new URL('/', base))
 }

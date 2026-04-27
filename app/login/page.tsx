@@ -1,6 +1,6 @@
 'use client'
 
-import {useActionState} from 'react'
+import {useActionState, Suspense} from 'react'
 import {useSearchParams} from 'next/navigation'
 import {login} from './actions'
 
@@ -9,7 +9,7 @@ const errorMessages: Record<string, string> = {
   expired: 'That sign-in link has expired. Please request a new one.',
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [state, action, pending] = useActionState(login, null)
   const searchParams = useSearchParams()
   const linkError = searchParams.get('error')
@@ -60,5 +60,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -42,4 +42,3 @@ next-env.d.ts
 
 # sqlite
 /data
-/drizzle

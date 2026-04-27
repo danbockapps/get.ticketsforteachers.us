@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `event_preferences` text;

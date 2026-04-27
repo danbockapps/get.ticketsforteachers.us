@@ -18,6 +18,10 @@ yarn db:studio    # Open Drizzle Studio
 
 No test framework is configured.
 
+## Deployment
+
+Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The SQLite database is persisted at `/var/lib/tickets-for-teachers` on the host.
+
 ## Stack
 
 - **Next.js 16.2.4** — App Router. This is a new major version with breaking changes from prior versions. Read `node_modules/next/dist/docs/` before writing any Next.js-specific code.

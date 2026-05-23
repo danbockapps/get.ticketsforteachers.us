@@ -2,7 +2,10 @@ import {sqliteTable, text, integer, index} from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
-  email: text('email').notNull().unique(),
+  email: text('email').notNull().unique(), // personal email, used for login
+  emailVerified: integer('email_verified', {mode: 'boolean'}).notNull().default(false),
+  workEmail: text('work_email').notNull().unique(),
+  workEmailVerified: integer('work_email_verified', {mode: 'boolean'}).notNull().default(false),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   eventPreferences: text('event_preferences'), // JSON array of strings
@@ -34,6 +37,7 @@ export const magicLinkTokens = sqliteTable(
       .notNull()
       .references(() => users.id, {onDelete: 'cascade'}),
     expiresAt: integer('expires_at').notNull(), // unix timestamp (seconds)
+    emailType: text('email_type').notNull().default('personal'), // 'personal' | 'work'
   },
   (table) => ({
     userIdIdx: index('idx_magic_link_tokens_user_id').on(table.userId),

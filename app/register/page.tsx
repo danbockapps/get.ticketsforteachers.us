@@ -48,13 +48,27 @@ export default function RegisterPage() {
 
             <div>
               <label className="label" htmlFor="email">
-                <span className="label-text">Email</span>
+                <span className="label-text">Personal email</span>
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
+                required
+                className="input input-bordered w-full"
+              />
+            </div>
+
+            <div>
+              <label className="label" htmlFor="workEmail">
+                <span className="label-text">Work email</span>
+              </label>
+              <input
+                id="workEmail"
+                name="workEmail"
+                type="email"
+                autoComplete="work email"
                 required
                 className="input input-bordered w-full"
               />

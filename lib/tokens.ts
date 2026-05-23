@@ -1,6 +1,6 @@
 import {db} from './db'
 import {magicLinkTokens} from './schema'
-import {eq} from 'drizzle-orm'
+import {eq, and} from 'drizzle-orm'
 
 const TOKEN_TTL_SECONDS = 15 * 60 // 15 minutes
 
@@ -12,19 +12,26 @@ export function generateToken(): string {
     .join('')
 }
 
-export async function createMagicLinkToken(userId: string): Promise<string> {
+export async function createMagicLinkToken(
+  userId: string,
+  emailType: 'personal' | 'work' = 'personal',
+): Promise<string> {
   const token = generateToken()
   const expiresAt = Math.floor(Date.now() / 1000) + TOKEN_TTL_SECONDS
 
-  // Invalidate any existing tokens for this user
-  await db.delete(magicLinkTokens).where(eq(magicLinkTokens.userId, userId))
+  // Invalidate existing tokens of the same type for this user
+  await db
+    .delete(magicLinkTokens)
+    .where(and(eq(magicLinkTokens.userId, userId), eq(magicLinkTokens.emailType, emailType)))
 
-  await db.insert(magicLinkTokens).values({id: token, userId, expiresAt})
+  await db.insert(magicLinkTokens).values({id: token, userId, expiresAt, emailType})
 
   return token
 }
 
-export async function validateMagicLinkToken(token: string): Promise<{userId: string} | null> {
+export async function validateMagicLinkToken(
+  token: string,
+): Promise<{userId: string; emailType: 'personal' | 'work'} | null> {
   const rows = await db.select().from(magicLinkTokens).where(eq(magicLinkTokens.id, token))
 
   const row = rows[0]
@@ -36,5 +43,5 @@ export async function validateMagicLinkToken(token: string): Promise<{userId: st
   const now = Math.floor(Date.now() / 1000)
   if (row.expiresAt < now) return null
 
-  return {userId: row.userId}
+  return {userId: row.userId, emailType: row.emailType as 'personal' | 'work'}
 }

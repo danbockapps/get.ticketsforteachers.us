@@ -21,7 +21,7 @@ export async function login(_prevState: unknown, formData: FormData) {
     return {error: 'No account found with that email address.'}
   }
 
-  const token = await createMagicLinkToken(user.id)
+  const token = await createMagicLinkToken(user.id, 'personal')
   await sendMagicLink(email, token)
 
   redirect('/check-email')

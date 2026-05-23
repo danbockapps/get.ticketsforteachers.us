@@ -1,6 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {validateMagicLinkToken} from '@/lib/tokens'
 import {lucia} from '@/lib/auth'
+import {db} from '@/lib/db'
+import {users} from '@/lib/schema'
+import {eq} from 'drizzle-orm'
 import {cookies} from 'next/headers'
 
 function baseUrl(request: NextRequest): string {
@@ -23,6 +26,14 @@ export async function GET(request: NextRequest) {
   if (!result) {
     return NextResponse.redirect(new URL('/login?error=expired', base))
   }
+
+  if (result.emailType === 'work') {
+    await db.update(users).set({workEmailVerified: true}).where(eq(users.id, result.userId))
+    return NextResponse.redirect(new URL('/login?workEmailVerified=true', base))
+  }
+
+  // Personal email: mark verified and create session
+  await db.update(users).set({emailVerified: true}).where(eq(users.id, result.userId))
 
   const session = await lucia.createSession(result.userId, {})
   const sessionCookie = lucia.createSessionCookie(session.id)

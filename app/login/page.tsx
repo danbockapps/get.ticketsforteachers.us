@@ -1,7 +1,7 @@
 'use client'
 
-import {useActionState, Suspense} from 'react'
 import {useSearchParams} from 'next/navigation'
+import {Suspense, useActionState} from 'react'
 import {login} from './actions'
 
 const errorMessages: Record<string, string> = {
@@ -13,6 +13,7 @@ function LoginForm() {
   const [state, action, pending] = useActionState(login, null)
   const searchParams = useSearchParams()
   const linkError = searchParams.get('error')
+  const workEmailVerified = searchParams.get('workEmailVerified') === 'true'
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
@@ -20,7 +21,7 @@ function LoginForm() {
         <div className="card-body">
           <h1 className="card-title text-2xl">Sign in</h1>
           <p className="text-base-content/70 text-sm">
-            Enter your email and we'll send you a sign-in link.
+            Enter your email and we&apos;ll send you a sign-in link.
           </p>
 
           <form action={action} className="mt-4 flex flex-col gap-4">
@@ -39,6 +40,12 @@ function LoginForm() {
               />
             </div>
 
+            {workEmailVerified && (
+              <div role="alert" className="alert alert-success">
+                <span>Work email verified! Sign in with your personal email below.</span>
+              </div>
+            )}
+
             {(linkError || state?.error) && (
               <div role="alert" className="alert alert-error">
                 <span>{linkError ? errorMessages[linkError] : state?.error}</span>
@@ -52,7 +59,7 @@ function LoginForm() {
           </form>
 
           <p className="text-base-content/60 mt-4 text-center text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a href="/register" className="link link-primary">
               Create one
             </a>

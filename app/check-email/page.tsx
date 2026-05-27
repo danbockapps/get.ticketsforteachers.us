@@ -1,9 +1,9 @@
 export default async function CheckEmailPage({
   searchParams,
 }: {
-  searchParams: Promise<{emails?: string}>
+  searchParams: Promise<{emails?: string; smsFailed?: string}>
 }) {
-  const {emails} = await searchParams
+  const {emails, smsFailed} = await searchParams
   const twoEmails = emails === '2'
 
   return (
@@ -21,6 +21,14 @@ export default async function CheckEmailPage({
             <p className="text-base-content/70">
               We sent you a sign-in link. It will expire in 15 minutes.
             </p>
+          )}
+          {smsFailed === '1' && (
+            <div role="alert" className="alert alert-warning mt-2 text-left text-sm">
+              <span>
+                We couldn&apos;t send an SMS to the number you provided. You can update your phone
+                number after signing in.
+              </span>
+            </div>
           )}
         </div>
       </div>

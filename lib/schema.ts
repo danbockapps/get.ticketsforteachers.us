@@ -47,6 +47,14 @@ export const magicLinkTokens = sqliteTable(
   }),
 )
 
+export const admins = sqliteTable('admins', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => users.id, {onDelete: 'cascade'}),
+  domains: text('domains').notNull(), // JSON array of domain strings
+})
+
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
+export type Admin = typeof admins.$inferSelect

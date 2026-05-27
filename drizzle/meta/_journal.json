@@ -43,6 +43,13 @@
       "when": 1779833310278,
       "tag": "0005_keen_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1779881199494,
+      "tag": "0006_modern_steel_serpent",
+      "breakpoints": true
     }
   ]
 }

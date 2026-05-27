@@ -6,6 +6,7 @@ import {register} from './actions'
 
 export default function RegisterPage() {
   const [state, action, pending] = useActionState(register, null)
+  const f = state?.fields
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
@@ -16,7 +17,7 @@ export default function RegisterPage() {
             We&apos;ll send a sign-in link to your email.
           </p>
 
-          <form action={action} className="mt-4 flex flex-col gap-4">
+          <form key={state?.key} action={action} className="mt-4 flex flex-col gap-4">
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="label" htmlFor="firstName">
@@ -28,6 +29,7 @@ export default function RegisterPage() {
                   type="text"
                   autoComplete="given-name"
                   required
+                  defaultValue={f?.firstName}
                   className="input input-bordered w-full"
                 />
               </div>
@@ -41,6 +43,7 @@ export default function RegisterPage() {
                   type="text"
                   autoComplete="family-name"
                   required
+                  defaultValue={f?.lastName}
                   className="input input-bordered w-full"
                 />
               </div>
@@ -56,6 +59,7 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 required
+                defaultValue={f?.email}
                 className="input input-bordered w-full"
               />
             </div>
@@ -70,6 +74,7 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="work email"
                 required
+                defaultValue={f?.workEmail}
                 className="input input-bordered w-full"
               />
             </div>
@@ -84,12 +89,13 @@ export default function RegisterPage() {
                 type="tel"
                 autoComplete="tel"
                 required
+                defaultValue={f?.phone}
                 className="input input-bordered w-full"
                 placeholder="+1 (555) 000-0000"
               />
             </div>
 
-            <PreferenceFields />
+            <PreferenceFields preferences={f} />
 
             {state?.error && (
               <div role="alert" className="alert alert-error">

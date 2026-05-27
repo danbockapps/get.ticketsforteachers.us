@@ -14,32 +14,66 @@ function normalizePhone(raw: string): string {
   return raw.replace(/\D/g, '')
 }
 
-export async function register(_prevState: unknown, formData: FormData) {
+type RegisterFields = {
+  firstName: string
+  lastName: string
+  email: string
+  workEmail: string
+  phone: string
+  eventTypes: string[]
+  adaAccessible: boolean
+  primaryWorksite: string
+}
+
+type RegisterState = {error: string; fields: RegisterFields; key: number} | null
+
+export async function register(
+  _prevState: RegisterState,
+  formData: FormData,
+): Promise<RegisterState> {
   const firstName = (formData.get('firstName') as string)?.trim()
   const lastName = (formData.get('lastName') as string)?.trim()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const workEmail = (formData.get('workEmail') as string)?.trim().toLowerCase()
   const rawPhone = (formData.get('phone') as string)?.trim()
+  const eventTypes = formData.getAll('eventTypes') as string[]
+  const adaAccessible = formData.get('adaAccessible') === 'on'
+  const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || ''
+
+  const fields: RegisterFields = {
+    firstName,
+    lastName,
+    email,
+    workEmail,
+    phone: rawPhone,
+    eventTypes,
+    adaAccessible,
+    primaryWorksite,
+  }
+
+  function fail(error: string): RegisterState {
+    return {error, fields, key: Date.now()}
+  }
 
   if (!firstName || !lastName || !email || !workEmail || !rawPhone) {
-    return {error: 'All fields are required.'}
+    return fail('All fields are required.')
   }
 
   if (!emailRegex.test(email)) {
-    return {error: 'Please enter a valid personal email address.'}
+    return fail('Please enter a valid personal email address.')
   }
 
   if (!emailRegex.test(workEmail)) {
-    return {error: 'Please enter a valid work email address.'}
+    return fail('Please enter a valid work email address.')
   }
 
   if (email === workEmail) {
-    return {error: 'Personal and work email addresses must be different.'}
+    return fail('Personal and work email addresses must be different.')
   }
 
   const digits = normalizePhone(rawPhone)
   if (digits.length < 10) {
-    return {error: 'Please enter a valid mobile phone number.'}
+    return fail('Please enter a valid mobile phone number.')
   }
   // Format as E.164 for Twilio (assume US if no country code)
   const phone = digits.length === 10 ? `+1${digits}` : `+${digits}`
@@ -51,21 +85,17 @@ export async function register(_prevState: unknown, formData: FormData) {
 
   for (const row of existing) {
     if (row.email === email) {
-      return {error: 'An account with this personal email already exists.'}
+      return fail('An account with this personal email already exists.')
     }
     if (row.workEmail === workEmail) {
-      return {error: 'An account with this work email already exists.'}
+      return fail('An account with this work email already exists.')
     }
   }
 
   const phoneExists = await db.select().from(users).where(eq(users.phone, phone))
   if (phoneExists.length > 0) {
-    return {error: 'An account with this phone number already exists.'}
+    return fail('An account with this phone number already exists.')
   }
-
-  const eventTypes = formData.getAll('eventTypes') as string[]
-  const adaAccessible = formData.get('adaAccessible') === 'on'
-  const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || null
 
   const id = generateToken()
   await db.insert(users).values({
@@ -77,7 +107,7 @@ export async function register(_prevState: unknown, formData: FormData) {
     lastName,
     eventPreferences: JSON.stringify(eventTypes),
     adaAccessible,
-    primaryWorksite,
+    primaryWorksite: primaryWorksite || null,
   })
 
   const personalToken = await createMagicLinkToken(id, 'personal')

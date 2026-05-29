@@ -21,6 +21,7 @@ No test framework is configured.
 ## Conventions
 
 - **One React component per file.** Don't define helper components alongside the main one — extract each into its own file.
+- **All outbound email goes to `users.email` (personal).** `users.workEmail` exists solely to prove the user belongs to a domain (via the work-email verification flow). Never send notifications, offers, or any other mail to `workEmail`.
 
 ## Deployment
 

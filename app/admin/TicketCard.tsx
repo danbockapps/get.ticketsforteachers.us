@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import StatusBadge from '@/app/admin/StatusBadge'
 import {formatEventAt, formatMoney} from '@/app/admin/format'
 import type {tickets} from '@/lib/schema'
@@ -85,9 +86,15 @@ export default function TicketCard({
         <p className="text-base-content/60 mt-1 text-sm italic">Audit log coming soon.</p>
         <div className="divider my-3" />
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-sm btn-primary" disabled>
-            Offer
-          </button>
+          {ticket.status === 'sent' ? (
+            <button className="btn btn-sm btn-primary" disabled>
+              Offer
+            </button>
+          ) : (
+            <Link href={`/admin/tickets/${ticket.id}/offer`} className="btn btn-sm btn-primary">
+              Offer
+            </Link>
+          )}
           <button className="btn btn-sm" disabled>
             Mark Sent
           </button>

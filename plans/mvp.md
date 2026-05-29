@@ -8,50 +8,50 @@ Add new tables to `lib/schema.ts`:
 
 ### `tickets`
 
-- [ ] `id` — primary key
-- [ ] `description` — short text
-- [ ] `quantity` — integer (number of tickets)
-- [ ] `event_at` — datetime (single field — events may be only minutes away, so we need both date and time together with precise ordering)
-- [ ] `location` — short text
-- [ ] `ada_accessible` — boolean
-- [ ] `parking_included` — boolean
-- [ ] `market_value` — numeric (store money in dollars)
-- [ ] `section` — text, nullable
-- [ ] `row` — text, nullable
-- [ ] `seats` — text, nullable
-- [ ] `notes` — text, nullable
-- [ ] `status` — enum-like text: `unclaimed` | `claimed` | `sent` (default `unclaimed`)
-- [ ] `claimed_by_user_id` — FK to users, nullable
-- [ ] `claimed_at` — timestamp, nullable
-- [ ] `created_by_admin_id` — FK
-- [ ] `created_at` — timestamp
-- [ ] `domain_id` — FK (which domain this ticket belongs to)
+- [x] `id` — primary key
+- [x] `description` — short text
+- [x] `quantity` — integer (number of tickets)
+- [x] `event_at` — datetime (single field — events may be only minutes away, so we need both date and time together with precise ordering)
+- [x] `location` — short text
+- [x] `ada_accessible` — boolean
+- [x] `parking_included` — boolean
+- [x] `market_value` — numeric (store money in dollars)
+- [x] `section` — text, nullable
+- [x] `row` — text, nullable
+- [x] `seats` — text, nullable
+- [x] `notes` — text, nullable
+- [x] `status` — enum-like text: `unclaimed` | `claimed` | `sent` (default `unclaimed`)
+- [x] `claimed_by_user_id` — FK to users, nullable
+- [x] `claimed_at` — timestamp, nullable
+- [x] `created_by_admin_id` — FK
+- [x] `created_at` — timestamp
+- [x] `domain` — text (the domain string itself, matching the existing `admins.domains` pattern; no separate domains table)
 
 ### `ticket_offers`
 
 One row per (ticket, user) offer.
 
-- [ ] `id` — primary key
-- [ ] `ticket_id` — FK
-- [ ] `user_id` — FK
-- [ ] `token` — random unguessable string (used in the personalized link)
-- [ ] `method` — `email` | `sms`
-- [ ] `sent_at` — timestamp
-- [ ] `opened_at` — timestamp, nullable (optional, for analytics later)
-- [ ] `declined_at` — timestamp, nullable
+- [x] `id` — primary key
+- [x] `ticket_id` — FK
+- [x] `user_id` — FK
+- [x] `token` — random unguessable string (used in the personalized link)
+- [x] `method` — `email` | `sms`
+- [x] `sent_at` — timestamp
+- [x] `opened_at` — timestamp, nullable (optional, for analytics later)
+- [x] `declined_at` — timestamp, nullable
 
 ### `ticket_events` (audit log)
 
-- [ ] `id` — primary key
-- [ ] `ticket_id` — FK
-- [ ] `actor_user_id` — FK, nullable (null if system)
-- [ ] `actor_admin_id` — FK, nullable
-- [ ] `event_type` — text: `created` | `offered` | `accepted` | `declined` | `marked_sent` | `status_changed`
-- [ ] `target_user_id` — FK, nullable (e.g. who it was offered to)
-- [ ] `details` — JSON text (free-form context, e.g. method, prior status)
-- [ ] `created_at` — timestamp
+- [x] `id` — primary key
+- [x] `ticket_id` — FK
+- [x] `actor_user_id` — FK, nullable (null if system)
+- [x] `actor_admin_id` — FK, nullable
+- [x] `event_type` — text: `created` | `offered` | `accepted` | `declined` | `marked_sent` | `status_changed`
+- [x] `target_user_id` — FK, nullable (e.g. who it was offered to)
+- [x] `details` — JSON text (free-form context, e.g. method, prior status)
+- [x] `created_at` — timestamp
 
-- [ ] After schema changes: run `yarn db:generate && yarn db:migrate`.
+- [x] After schema changes: run `yarn db:generate && yarn db:migrate`.
 
 ## 2. Admin: ticket list / dashboard
 
@@ -177,7 +177,7 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 
 ## 10. Build order (suggested)
 
-- [ ] 1. Schema + migrations (tickets, ticket_offers, ticket_events).
+- [x] 1. Schema + migrations (tickets, ticket_offers, ticket_events).
 - [ ] 2. Admin ticket list view (read-only).
 - [ ] 3. Create ticket form + action.
 - [ ] 4. Offer flow (user picker + send action) — start with email only.

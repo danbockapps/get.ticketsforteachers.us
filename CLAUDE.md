@@ -48,6 +48,8 @@ lib/
 drizzle.config.ts
 data/           # SQLite database file (gitignored)
 drizzle/        # Generated migration files (gitignored)
+prompts/        # Prompts the user writes — do not put generated files here
+plans/          # Plans Claude writes — put new planning docs here
 ```
 
 ## Auth pattern

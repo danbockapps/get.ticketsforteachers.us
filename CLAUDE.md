@@ -37,6 +37,10 @@ Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The
 
 ```
 app/            # Next.js App Router pages and layouts
+  AdminView.tsx       # Home page view for admin users
+  LoggedInView.tsx    # Home page view for authenticated regular users
+  LoggedOutView.tsx   # Home page view for unauthenticated users
+  check-email/        # Post-registration/login "check your email" confirmation page
 lib/
   db.ts         # Lazy-initialized SQLite + Drizzle proxy; exports `db` and `sqlite`
   auth.ts       # Lucia instance; exports requireAuth() and getUser() helpers
@@ -54,17 +58,32 @@ drizzle/        # Generated migration files (gitignored)
 
 Lucia needs the raw `sqlite` instance (not the Drizzle `db`) for its adapter — both are exported from `lib/db.ts`.
 
+### Home page routing
+
+`app/page.tsx` checks the user's state and renders one of three views:
+
+- **`AdminView`** — if the user has a row in the `admins` table
+- **`LoggedInView`** — regular authenticated user; shows phone verification status and preferences
+- **`LoggedOutView`** — unauthenticated; links to `/register` and `/login`
+
+## Registration
+
+On success, the user is redirected to `/check-email?emails=2` (both personal and work verification links are sent). If SMS delivery fails, the action redirects to `/check-email?smsFailed=1`, which shows a warning alert.
+
 ## User preferences
 
-Preference fields are collected at registration (`app/register/page.tsx`) and editable post-login on the home page (`app/page.tsx`). Both surfaces share `app/preferences/PreferenceFields.tsx` for the form controls, and `app/preferences/constants.ts` for any fixed option lists.
+Preference fields are collected at registration (`app/register/page.tsx`) and editable post-login on the home page via `app/LoggedInView.tsx`. Both surfaces share `app/preferences/PreferenceFields.tsx` for the form controls, and `app/preferences/constants.ts` for any fixed option lists.
+
+`PreferenceFields` accepts `{ eventTypes?, adaAccessible?, primaryWorksite? }`.
 
 The save logic lives in `app/preferences/actions.ts` (server action called by `PreferencesForm`) and `app/register/actions.ts`.
 
 ### UI → database mapping
 
-| UI pattern | Form field name | DB column | DB type |
-|---|---|---|---|
-| Checkbox group (multi-select) | e.g. `eventTypes` | e.g. `event_preferences` | JSON array of strings stored in a `text` column |
-| Single checkbox | e.g. `adaAccessible` | e.g. `ada_accessible` | `integer` with `{mode: 'boolean'}`, defaults to `false` |
+| UI pattern                    | Form field name   | DB column           | DB type                                         |
+| ----------------------------- | ----------------- | ------------------- | ----------------------------------------------- |
+| Checkbox group (multi-select) | `eventTypes`      | `event_preferences` | JSON array of strings in a `text` column        |
+| Text input                    | `primaryWorksite` | `primary_worksite`  | `text`                                          |
+| Single checkbox               | `adaAccessible`   | `ada_accessible`    | `integer` `{mode: 'boolean'}`, defaults `false` |
 
 New preference fields follow the same pattern: add the control to `PreferenceFields.tsx`, add the column to `lib/schema.ts`, and run `yarn db:generate && yarn db:migrate`.

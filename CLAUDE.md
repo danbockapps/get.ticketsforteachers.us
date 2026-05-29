@@ -18,6 +18,10 @@ yarn db:studio    # Open Drizzle Studio
 
 No test framework is configured.
 
+## Conventions
+
+- **One React component per file.** Don't define helper components alongside the main one — extract each into its own file.
+
 ## Deployment
 
 Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The SQLite database is persisted at `/var/lib/tickets-for-teachers` on the host.

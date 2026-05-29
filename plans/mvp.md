@@ -57,16 +57,16 @@ One row per (ticket, user) offer.
 
 In `app/AdminView.tsx` (or a new route like `app/admin/tickets/page.tsx`):
 
-- [ ] List of tickets grouped or filtered by status with prominent badges:
-  - [ ] **Claimed** — most prominent (admin action required: send the ticket); includes claimer's name
-  - [ ] **Unclaimed** — visible, secondary prominence
-  - [ ] **Sent** — hidden by default behind a "Show sent" toggle
-- [ ] Each row shows description, date, location, quantity, status badge.
-- [ ] Click to expand a ticket row to see:
-  - [ ] All ticket fields
-  - [ ] Audit log (`ticket_events`) timeline
-  - [ ] Buttons: Offer, Mark Sent, Change Status, Edit
-- [ ] A prominent "Create ticket" button at the top.
+- [x] List of tickets grouped or filtered by status with prominent badges:
+  - [x] **Claimed** — most prominent (admin action required: send the ticket); includes claimer's name
+  - [x] **Unclaimed** — visible, secondary prominence
+  - [x] **Sent** — hidden by default behind a "Show sent" toggle
+- [x] Each row shows description, date, location, quantity, status badge.
+- [x] Click to expand a ticket row to see:
+  - [x] All ticket fields
+  - [ ] Audit log (`ticket_events`) timeline (placeholder; fleshed out in step 7)
+  - [x] Buttons: Offer, Mark Sent, Change Status, Edit (rendered, wired up in later steps)
+- [x] A prominent "Create ticket" button at the top.
 
 ## 3. Admin: create ticket flow
 
@@ -178,7 +178,7 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 ## 10. Build order (suggested)
 
 - [x] 1. Schema + migrations (tickets, ticket_offers, ticket_events).
-- [ ] 2. Admin ticket list view (read-only).
+- [x] 2. Admin ticket list view (read-only).
 - [ ] 3. Create ticket form + action.
 - [ ] 4. Offer flow (user picker + send action) — start with email only.
 - [ ] 5. Public offer page with Accept/Decline + atomic claim.

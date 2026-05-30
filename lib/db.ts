@@ -28,15 +28,15 @@ function initDb() {
 }
 
 export const db = new Proxy({} as BetterSQLite3Database<typeof schema>, {
-  get(_target, prop) {
+  get(_target, prop, receiver) {
     const {db: instance} = initDb()
-    return (instance as any)[prop]
+    return Reflect.get(instance, prop, receiver)
   },
 })
 
 export const sqlite = new Proxy({} as Database.Database, {
-  get(_target, prop) {
+  get(_target, prop, receiver) {
     const {sqlite: instance} = initDb()
-    return (instance as any)[prop]
+    return Reflect.get(instance, prop, receiver)
   },
 })

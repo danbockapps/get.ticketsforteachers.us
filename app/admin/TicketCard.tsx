@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import MarkSentButton from '@/app/admin/MarkSentButton'
 import StatusBadge from '@/app/admin/StatusBadge'
 import {formatEventAt, formatMoney} from '@/app/admin/format'
 import type {tickets} from '@/lib/schema'
@@ -95,12 +96,10 @@ export default function TicketCard({
               Offer
             </Link>
           )}
-          <button className="btn btn-sm" disabled>
-            Mark Sent
-          </button>
-          <button className="btn btn-sm" disabled>
+          <MarkSentButton ticketId={ticket.id} disabled={ticket.status === 'sent'} />
+          <Link href={`/admin/tickets/${ticket.id}/status`} className="btn btn-sm">
             Change Status
-          </button>
+          </Link>
           <button className="btn btn-sm btn-ghost" disabled>
             Edit
           </button>

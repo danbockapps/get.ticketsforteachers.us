@@ -144,10 +144,10 @@ Use a transaction (or `UPDATE ... WHERE status = 'unclaimed'`) to atomically:
 
 On the ticket detail view:
 
-- [ ] "Mark Sent" button — sets status to `sent`, logs `marked_sent` event.
-- [ ] "Change Status" dropdown — manually switch between Unclaimed / Claimed / Sent. Logs `status_changed` event with prior + new values in `details`.
-- [ ] If moving to `claimed` manually, prompt for which user (or leave null).
-- [ ] If moving away from `claimed`, clear `claimed_by_user_id` and `claimed_at`.
+- [x] "Mark Sent" button — sets status to `sent`, logs `marked_sent` event.
+- [x] "Change Status" dropdown — manually switch between Unclaimed / Claimed / Sent. Logs `status_changed` event with prior + new values in `details`.
+- [x] If moving to `claimed` manually, prompt for which user (or leave null).
+- [x] If moving away from `claimed`, clear `claimed_by_user_id` and `claimed_at`.
 
 ## 7. Audit log display
 
@@ -183,6 +183,6 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 - [x] 4. Offer flow (user picker + send action) — start with email only.
 - [x] 5. Public offer page with Accept/Decline + atomic claim.
 - [x] 6. Add SMS as a second method.
-- [ ] 7. Mark sent + manual status change.
+- [x] 7. Mark sent + manual status change.
 - [ ] 8. Audit log timeline on ticket detail.
 - [ ] 9. Polish: filters on the list (status, date range, domain), "Show sent" toggle, per-user send-failure surfacing.

@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import MarkSentButton from '@/app/admin/MarkSentButton'
 import StatusBadge from '@/app/admin/StatusBadge'
+import TicketActivity, {type ActivityEvent} from '@/app/admin/TicketActivity'
 import {formatEventAt, formatMoney} from '@/app/admin/format'
 import type {tickets} from '@/lib/schema'
 
 export type TicketRow = typeof tickets.$inferSelect & {
   claimerFirstName: string | null
   claimerLastName: string | null
+  events: ActivityEvent[]
 }
 
 export default function TicketCard({
@@ -84,7 +86,7 @@ export default function TicketCard({
         </dl>
         <div className="divider my-3" />
         <p className="text-base-content/50 text-xs uppercase tracking-wide">Activity</p>
-        <p className="text-base-content/60 mt-1 text-sm italic">Audit log coming soon.</p>
+        <TicketActivity events={ticket.events} />
         <div className="divider my-3" />
         <div className="flex flex-wrap gap-2">
           {ticket.status === 'sent' ? (

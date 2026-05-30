@@ -14,3 +14,14 @@ export function formatEventAt(iso: string) {
 export function formatMoney(dollars: number) {
   return `$${dollars.toFixed(2)}`
 }
+
+export function formatActivityTimestamp(iso: string) {
+  const d = new Date(iso)
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: process.env.EVENT_TIME_ZONE || 'America/New_York',
+  })
+}

@@ -2,13 +2,13 @@
 
 import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {ticketEvents, tickets, users} from '@/lib/schema'
-import {generateToken} from '@/lib/tokens'
+import {tickets, type TicketStatus, users} from '@/lib/schema'
+import {logTicketEvent} from '@/lib/ticketEvents'
 import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
 
-export type TicketStatus = 'unclaimed' | 'claimed' | 'sent'
+export type {TicketStatus}
 
 export type MarkSentState = {error: string; key: number} | null
 
@@ -26,12 +26,11 @@ export async function markSent(_prev: MarkSentState, formData: FormData): Promis
   const prior = ticket.status
   await db.update(tickets).set({status: 'sent'}).where(eq(tickets.id, ticketId))
 
-  await db.insert(ticketEvents).values({
-    id: generateToken(),
+  await logTicketEvent({
     ticketId,
     actorAdminId: admin.id,
     eventType: 'marked_sent',
-    details: JSON.stringify({prior, next: 'sent'}),
+    details: {prior, next: 'sent'},
   })
 
   revalidatePath('/')
@@ -100,18 +99,17 @@ export async function changeStatus(
     })
     .where(eq(tickets.id, ticketId))
 
-  await db.insert(ticketEvents).values({
-    id: generateToken(),
+  await logTicketEvent({
     ticketId,
     actorAdminId: admin.id,
     eventType: 'status_changed',
     targetUserId: nextStatus === 'claimed' ? claimedByUserId : null,
-    details: JSON.stringify({
+    details: {
       prior,
       next: nextStatus,
       priorClaimedByUserId: ticket.claimedByUserId,
       nextClaimedByUserId: updateClaimedByUserId,
-    }),
+    },
   })
 
   revalidatePath('/')

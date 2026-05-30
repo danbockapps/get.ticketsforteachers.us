@@ -1,8 +1,8 @@
 'use server'
 
 import {db} from '@/lib/db'
-import {ticketEvents, ticketOffers, tickets} from '@/lib/schema'
-import {generateToken} from '@/lib/tokens'
+import {ticketOffers, tickets} from '@/lib/schema'
+import {logTicketEvent} from '@/lib/ticketEvents'
 import {and, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -32,8 +32,7 @@ export async function acceptOffer(
     return fail('This ticket has already been claimed.')
   }
 
-  await db.insert(ticketEvents).values({
-    id: generateToken(),
+  await logTicketEvent({
     ticketId: offer.ticketId,
     actorUserId: offer.userId,
     eventType: 'accepted',
@@ -59,8 +58,7 @@ export async function declineOffer(
     .set({declinedAt: new Date().toISOString()})
     .where(eq(ticketOffers.id, offer.id))
 
-  await db.insert(ticketEvents).values({
-    id: generateToken(),
+  await logTicketEvent({
     ticketId: offer.ticketId,
     actorUserId: offer.userId,
     eventType: 'declined',

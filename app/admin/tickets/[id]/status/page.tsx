@@ -55,7 +55,7 @@ export default async function ChangeStatusPage({params}: {params: Promise<{id: s
           <div className="card-body">
             <ChangeStatusForm
               ticketId={ticket.id}
-              currentStatus={ticket.status as 'unclaimed' | 'claimed' | 'sent'}
+              currentStatus={ticket.status}
               currentClaimedByUserId={ticket.claimedByUserId}
               users={candidateUsers}
             />

@@ -4,7 +4,8 @@ import {OFFER_COOLDOWN_MS} from '@/app/admin/tickets/[id]/offer/constants'
 import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
-import {ticketEvents, ticketOffers, tickets, users} from '@/lib/schema'
+import {ticketOffers, tickets, users} from '@/lib/schema'
+import {logTicketEvent} from '@/lib/ticketEvents'
 import {generateToken} from '@/lib/tokens'
 import {and, desc, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
@@ -64,7 +65,6 @@ export async function sendOffer(
 
   const token = generateToken()
   const offerId = generateToken()
-  const eventId = generateToken()
   const now = new Date().toISOString()
 
   await db.insert(ticketOffers).values({
@@ -87,13 +87,12 @@ export async function sendOffer(
     )
   }
 
-  await db.insert(ticketEvents).values({
-    id: eventId,
+  await logTicketEvent({
     ticketId,
     actorAdminId: admin.id,
     eventType: 'offered',
     targetUserId: userId,
-    details: JSON.stringify({method}),
+    details: {method},
   })
 
   revalidatePath(`/admin/tickets/${ticketId}/offer`)

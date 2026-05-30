@@ -1,5 +1,7 @@
 import {index, integer, real, sqliteTable, text} from 'drizzle-orm/sqlite-core'
 
+export type TicketStatus = 'unclaimed' | 'claimed' | 'sent'
+
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(), // personal email, used for login
@@ -69,7 +71,7 @@ export const tickets = sqliteTable(
     row: text('row'),
     seats: text('seats'),
     notes: text('notes'),
-    status: text('status').notNull().default('unclaimed'), // 'unclaimed' | 'claimed' | 'sent'
+    status: text('status').$type<TicketStatus>().notNull().default('unclaimed'),
     claimedByUserId: text('claimed_by_user_id').references(() => users.id, {onDelete: 'set null'}),
     claimedAt: text('claimed_at'),
     createdByAdminId: text('created_by_admin_id')

@@ -2,7 +2,8 @@
 
 import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {ticketEvents, tickets} from '@/lib/schema'
+import {tickets} from '@/lib/schema'
+import {logTicketEvent} from '@/lib/ticketEvents'
 import {generateToken} from '@/lib/tokens'
 import {redirect} from 'next/navigation'
 
@@ -85,7 +86,6 @@ export async function createTicket(
   if (!domains.includes(domain)) return fail('You do not have access to that domain.')
 
   const ticketId = generateToken()
-  const eventId = generateToken()
 
   await db.insert(tickets).values({
     id: ticketId,
@@ -105,8 +105,7 @@ export async function createTicket(
     domain,
   })
 
-  await db.insert(ticketEvents).values({
-    id: eventId,
+  await logTicketEvent({
     ticketId,
     actorAdminId: user.id,
     eventType: 'created',

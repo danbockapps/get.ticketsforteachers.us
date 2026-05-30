@@ -64,7 +64,7 @@ In `app/AdminView.tsx` (or a new route like `app/admin/tickets/page.tsx`):
 - [x] Each row shows description, date, location, quantity, status badge.
 - [x] Click to expand a ticket row to see:
   - [x] All ticket fields
-  - [ ] Audit log (`ticket_events`) timeline (placeholder; fleshed out in step 7)
+  - [x] Audit log (`ticket_events`) timeline (placeholder; fleshed out in step 7)
   - [x] Buttons: Offer, Mark Sent, Change Status, Edit (rendered, wired up in later steps)
 - [x] A prominent "Create ticket" button at the top.
 
@@ -153,27 +153,27 @@ On the ticket detail view:
 
 On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 
-- [ ] "Created by [admin] at [timestamp]"
-- [ ] "Offered to John Doe via email at [timestamp]"
-- [ ] "Offered to Jane Doe via SMS at [timestamp]"
-- [ ] "Accepted by Jane Doe at [timestamp]"
-- [ ] "Marked sent by [admin] at [timestamp]"
-- [ ] Not prominent — collapsed by default, expandable.
+- [x] "Created by [admin] at [timestamp]"
+- [x] "Offered to John Doe via email at [timestamp]"
+- [x] "Offered to Jane Doe via SMS at [timestamp]"
+- [x] "Accepted by Jane Doe at [timestamp]"
+- [x] "Marked sent by [admin] at [timestamp]"
+- [x] Not prominent — collapsed by default, expandable.
 
 ## 8. Sending plumbing
 
-- [ ] Reuse the existing email sender used for registration verification.
-- [ ] Reuse the existing SMS sender used for phone verification.
-- [ ] Add a thin wrapper `lib/notifications.ts` (or extend existing) with:
-  - [ ] `sendOfferEmail(user, ticket, token)`
-  - [ ] `sendOfferSms(user, ticket, token)`
-- [ ] If sending fails for a particular user, do NOT mark the offer as sent — surface per-user failures in the admin UI (similar to the existing `smsFailed` pattern on `/check-email`).
+- [x] Reuse the existing email sender used for registration verification.
+- [x] Reuse the existing SMS sender used for phone verification.
+- [x] Add a thin wrapper `lib/notifications.ts` (or extend existing) with:
+  - [x] `sendOfferEmail(user, ticket, token)`
+  - [x] `sendOfferSms(user, ticket, token)`
+- [x] If sending fails for a particular user, do NOT mark the offer as sent — surface per-user failures in the admin UI (similar to the existing `smsFailed` pattern on `/check-email`).
 
 ## 9. Authorization
 
-- [ ] All `/admin/*` routes must check that the current user has a row in `admins` (extend `requireAuth` or add `requireAdmin`).
-- [ ] `/offer/[token]` is public (token-gated, no login).
-- [ ] Admins can only see/offer tickets in domains they belong to.
+- [x] All `/admin/*` routes must check that the current user has a row in `admins` (extend `requireAuth` or add `requireAdmin`).
+- [x] `/offer/[token]` is public (token-gated, no login).
+- [x] Admins can only see/offer tickets in domains they belong to.
 
 ## 10. Build order (suggested)
 
@@ -184,5 +184,5 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 - [x] 5. Public offer page with Accept/Decline + atomic claim.
 - [x] 6. Add SMS as a second method.
 - [x] 7. Mark sent + manual status change.
-- [ ] 8. Audit log timeline on ticket detail.
+- [x] 8. Audit log timeline on ticket detail.
 - [ ] 9. Polish: filters on the list (status, date range, domain), "Show sent" toggle, per-user send-failure surfacing.

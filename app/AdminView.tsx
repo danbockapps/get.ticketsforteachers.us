@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import {loadActivityByTicket} from '@/app/admin/loadActivityByTicket'
 import TicketSection from '@/app/admin/TicketSection'
 import {logout} from '@/app/logout/actions'
 import {db} from '@/lib/db'
@@ -45,9 +46,12 @@ export default async function AdminView({
           .where(inArray(tickets.domain, domains))
           .orderBy(desc(tickets.eventAt))
 
-  const claimed = rows.filter((t) => t.status === 'claimed')
-  const unclaimed = rows.filter((t) => t.status === 'unclaimed')
-  const sent = rows.filter((t) => t.status === 'sent')
+  const eventsByTicket = await loadActivityByTicket(rows.map((r) => r.id))
+  const rowsWithEvents = rows.map((r) => ({...r, events: eventsByTicket.get(r.id) ?? []}))
+
+  const claimed = rowsWithEvents.filter((t) => t.status === 'claimed')
+  const unclaimed = rowsWithEvents.filter((t) => t.status === 'unclaimed')
+  const sent = rowsWithEvents.filter((t) => t.status === 'sent')
 
   return (
     <div className="min-h-screen bg-base-200 py-8">

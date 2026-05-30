@@ -8,8 +8,6 @@ import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
 
-export type {TicketStatus}
-
 export type MarkSentState = {error: string; key: number} | null
 
 export async function markSent(_prev: MarkSentState, formData: FormData): Promise<MarkSentState> {

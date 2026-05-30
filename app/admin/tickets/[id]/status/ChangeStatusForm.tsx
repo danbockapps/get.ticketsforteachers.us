@@ -1,7 +1,8 @@
 'use client'
 
 import {useActionState, useState} from 'react'
-import {changeStatus, type TicketStatus} from '@/app/admin/tickets/[id]/actions'
+import {changeStatus} from '@/app/admin/tickets/[id]/actions'
+import {type TicketStatus} from '@/lib/schema'
 
 export default function ChangeStatusForm({
   ticketId,

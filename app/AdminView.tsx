@@ -1,22 +1,35 @@
 import Link from 'next/link'
+import DashboardFilters from '@/app/admin/DashboardFilters'
 import {loadActivityByTicket} from '@/app/admin/loadActivityByTicket'
 import TicketSection from '@/app/admin/TicketSection'
 import {logout} from '@/app/logout/actions'
 import {db} from '@/lib/db'
 import {tickets, users} from '@/lib/schema'
-import {desc, eq, inArray} from 'drizzle-orm'
+import {and, desc, eq, gte, inArray, lte, type SQL} from 'drizzle-orm'
 
 export default async function AdminView({
   user,
   domains,
   showSent,
+  from,
+  to,
+  domainFilter,
 }: {
   user: {id: string; firstName: string; email: string}
   domains: string[]
   showSent: boolean
+  from: string | null
+  to: string | null
+  domainFilter: string | null
 }) {
+  const effectiveDomains = domainFilter && domains.includes(domainFilter) ? [domainFilter] : domains
+
+  const whereConditions: SQL[] = [inArray(tickets.domain, effectiveDomains)]
+  if (from) whereConditions.push(gte(tickets.eventAt, `${from}T00:00:00.000Z`))
+  if (to) whereConditions.push(lte(tickets.eventAt, `${to}T23:59:59.999Z`))
+
   const rows =
-    domains.length === 0
+    effectiveDomains.length === 0
       ? []
       : await db
           .select({
@@ -43,7 +56,7 @@ export default async function AdminView({
           })
           .from(tickets)
           .leftJoin(users, eq(tickets.claimedByUserId, users.id))
-          .where(inArray(tickets.domain, domains))
+          .where(and(...whereConditions))
           .orderBy(desc(tickets.eventAt))
 
   const eventsByTicket = await loadActivityByTicket(rows.map((r) => r.id))
@@ -74,18 +87,20 @@ export default async function AdminView({
           <Link href="/admin/tickets/new" className="btn btn-primary">
             Create ticket
           </Link>
-          <Link href={showSent ? '/' : '/?showSent=1'} className="btn btn-ghost btn-sm">
-            {showSent ? 'Hide sent' : 'Show sent'}
-          </Link>
         </div>
+
+        <DashboardFilters
+          domains={domains}
+          from={from}
+          to={to}
+          domainFilter={domainFilter}
+          showSent={showSent}
+        />
 
         {rows.length === 0 ? (
           <div className="card bg-base-100 shadow">
             <div className="card-body items-center text-center">
-              <p className="text-base-content/60">No tickets yet.</p>
-              <p className="text-base-content/50 text-sm">
-                Create one to start offering it to your teachers.
-              </p>
+              <p className="text-base-content/60">No tickets match these filters.</p>
             </div>
           </div>
         ) : (

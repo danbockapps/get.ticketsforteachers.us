@@ -185,4 +185,4 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 - [x] 6. Add SMS as a second method.
 - [x] 7. Mark sent + manual status change.
 - [x] 8. Audit log timeline on ticket detail.
-- [ ] 9. Polish: filters on the list (status, date range, domain), "Show sent" toggle, per-user send-failure surfacing.
+- [x] 9. Polish: filters on the list (status, date range, domain), "Show sent" toggle, per-user send-failure surfacing.

@@ -1,17 +1,19 @@
 'use client'
 
 import {useActionState} from 'react'
-import {sendOffer} from './actions'
+import {sendOffer, type OfferMethod} from './actions'
 
 export default function SendOfferButton({
   ticketId,
   userId,
+  method,
   disabled,
   disabledReason,
   hasPriorOffer,
 }: {
   ticketId: string
   userId: string
+  method: OfferMethod
   disabled: boolean
   disabledReason: string | null
   hasPriorOffer: boolean
@@ -22,6 +24,7 @@ export default function SendOfferButton({
     <form key={state?.key} action={action} className="flex flex-col items-end gap-1">
       <input type="hidden" name="ticketId" value={ticketId} />
       <input type="hidden" name="userId" value={userId} />
+      <input type="hidden" name="method" value={method} />
       <button
         type="submit"
         disabled={disabled || pending}

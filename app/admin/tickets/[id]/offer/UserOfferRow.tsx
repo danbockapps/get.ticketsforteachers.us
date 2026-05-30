@@ -1,4 +1,5 @@
 import SendOfferButton from '@/app/admin/tickets/[id]/offer/SendOfferButton'
+import type {OfferMethod} from '@/app/admin/tickets/[id]/offer/actions'
 
 export type OfferableUser = {
   id: string
@@ -6,6 +7,8 @@ export type OfferableUser = {
   lastName: string
   email: string
   emailVerified: boolean
+  phone: string | null
+  phoneVerified: boolean
   eventPreferences: string | null
   adaAccessible: boolean
   primaryWorksite: string | null
@@ -24,22 +27,37 @@ function formatTimestamp(iso: string) {
 export default function UserOfferRow({
   ticketId,
   user,
+  method,
   lastOfferAt,
   withinCooldown,
 }: {
   ticketId: string
   user: OfferableUser
+  method: OfferMethod
   lastOfferAt: string | null
   withinCooldown: boolean
 }) {
   const eventTypes: string[] = user.eventPreferences ? JSON.parse(user.eventPreferences) : []
+  const contact = method === 'email' ? user.email : (user.phone ?? 'No phone on file')
 
   let disabled = false
   let disabledReason: string | null = null
-  if (!user.emailVerified) {
-    disabled = true
-    disabledReason = 'Personal email not verified'
-  } else if (withinCooldown) {
+  if (method === 'email') {
+    if (!user.emailVerified) {
+      disabled = true
+      disabledReason = 'Personal email not verified'
+    }
+  } else {
+    if (!user.phone) {
+      disabled = true
+      disabledReason = 'No phone on file'
+    } else if (!user.phoneVerified) {
+      disabled = true
+      disabledReason = 'Phone not verified'
+    }
+  }
+  if (!disabled && withinCooldown) {
+    // No disabledReason necessary - user will figure it out when they see the "Last offered" timestamp
     disabled = true
   }
 
@@ -52,7 +70,7 @@ export default function UserOfferRow({
         <p className="font-medium">
           {user.firstName} {user.lastName}
         </p>
-        <p className="text-base-content/70 text-sm">{user.email}</p>
+        <p className="text-base-content/70 text-sm">{contact}</p>
         <div className="mt-1 flex flex-wrap gap-1">
           {user.adaAccessible && <span className="badge badge-outline badge-sm">ADA</span>}
           {user.primaryWorksite && (
@@ -69,6 +87,7 @@ export default function UserOfferRow({
         <SendOfferButton
           ticketId={ticketId}
           userId={user.id}
+          method={method}
           disabled={disabled}
           disabledReason={disabledReason}
           hasPriorOffer={lastOfferAt !== null}

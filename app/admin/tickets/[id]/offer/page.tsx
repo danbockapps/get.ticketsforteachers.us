@@ -2,14 +2,23 @@ import Link from 'next/link'
 import {notFound, redirect} from 'next/navigation'
 import UserOfferRow from '@/app/admin/tickets/[id]/offer/UserOfferRow'
 import {computeCooldownMap} from '@/app/admin/tickets/[id]/offer/cooldown'
+import type {OfferMethod} from '@/app/admin/tickets/[id]/offer/actions'
 import {formatEventAt} from '@/app/admin/format'
 import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {and, desc, eq, like} from 'drizzle-orm'
 
-export default async function OfferTicketPage({params}: {params: Promise<{id: string}>}) {
+export default async function OfferTicketPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{id: string}>
+  searchParams: Promise<{method?: string}>
+}) {
   const {id} = await params
+  const {method: methodRaw} = await searchParams
+  const method: OfferMethod = methodRaw === 'sms' ? 'sms' : 'email'
   const {domains} = await requireAdmin()
 
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, id))
@@ -24,6 +33,8 @@ export default async function OfferTicketPage({params}: {params: Promise<{id: st
       lastName: users.lastName,
       email: users.email,
       emailVerified: users.emailVerified,
+      phone: users.phone,
+      phoneVerified: users.phoneVerified,
       eventPreferences: users.eventPreferences,
       adaAccessible: users.adaAccessible,
       primaryWorksite: users.primaryWorksite,
@@ -44,8 +55,11 @@ export default async function OfferTicketPage({params}: {params: Promise<{id: st
 
   const cooldownByUser = computeCooldownMap(lastOfferByUser)
 
+  const emailTabHref = `/admin/tickets/${ticket.id}/offer`
+  const smsTabHref = `/admin/tickets/${ticket.id}/offer?method=sms`
+
   return (
-    <div className="min-h-screen bg-base-200 py-8">
+    <div className="bg-base-200 min-h-screen py-8">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
         <div>
           <Link href="/" className="text-base-content/60 text-sm hover:underline">
@@ -63,8 +77,24 @@ export default async function OfferTicketPage({params}: {params: Promise<{id: st
               {ticket.quantity === 1 ? 'ticket' : 'tickets'}
             </p>
             <p className="text-base-content/50 mt-2 text-xs">
-              Sending via email to users in <span className="font-mono">@{ticket.domain}</span>
+              Users in <span className="font-mono">@{ticket.domain}</span>
             </p>
+            <div role="tablist" className="tabs tabs-boxed mt-3 self-start">
+              <Link
+                href={emailTabHref}
+                role="tab"
+                className={`tab ${method === 'email' ? 'tab-active' : ''}`}
+              >
+                Email
+              </Link>
+              <Link
+                href={smsTabHref}
+                role="tab"
+                className={`tab ${method === 'sms' ? 'tab-active' : ''}`}
+              >
+                SMS
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -84,6 +114,7 @@ export default async function OfferTicketPage({params}: {params: Promise<{id: st
                   key={u.id}
                   ticketId={ticket.id}
                   user={u}
+                  method={method}
                   lastOfferAt={lastOfferByUser.get(u.id) ?? null}
                   withinCooldown={cooldownByUser.get(u.id) ?? false}
                 />

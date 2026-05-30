@@ -3,12 +3,13 @@
 import {OFFER_COOLDOWN_MS} from '@/app/admin/tickets/[id]/offer/constants'
 import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {sendOfferEmail} from '@/lib/notifications'
+import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
 import {ticketEvents, ticketOffers, tickets, users} from '@/lib/schema'
 import {generateToken} from '@/lib/tokens'
 import {and, desc, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
+export type OfferMethod = 'email' | 'sms'
 export type SendOfferState = {error: string; key: number} | null
 
 export async function sendOffer(
@@ -17,6 +18,11 @@ export async function sendOffer(
 ): Promise<SendOfferState> {
   const ticketId = (formData.get('ticketId') as string) ?? ''
   const userId = (formData.get('userId') as string) ?? ''
+  const methodRaw = (formData.get('method') as string) ?? 'email'
+  if (methodRaw !== 'email' && methodRaw !== 'sms') {
+    return {error: 'Invalid method.', key: Date.now()}
+  }
+  const method: OfferMethod = methodRaw
 
   const {user: admin, domains} = await requireAdmin()
 
@@ -34,7 +40,13 @@ export async function sendOffer(
     return fail('User is not in this ticket’s domain.')
   }
   if (!recipient.workEmailVerified) return fail('User’s work email is not verified.')
-  if (!recipient.emailVerified) return fail('User’s personal email is not verified.')
+
+  if (method === 'email') {
+    if (!recipient.emailVerified) return fail('User’s personal email is not verified.')
+  } else {
+    if (!recipient.phone) return fail('User has no phone number.')
+    if (!recipient.phoneVerified) return fail('User’s phone is not verified.')
+  }
 
   const lastOffer = await db
     .select()
@@ -60,16 +72,19 @@ export async function sendOffer(
     ticketId,
     userId,
     token,
-    method: 'email',
+    method,
     sentAt: now,
   })
 
   try {
-    await sendOfferEmail(recipient, ticket, token)
+    if (method === 'email') await sendOfferEmail(recipient, ticket, token)
+    else await sendOfferSms(recipient, ticket, token)
   } catch (err) {
-    console.error('Failed to send offer email:', err)
+    console.error(`Failed to send offer ${method}:`, err)
     await db.delete(ticketOffers).where(eq(ticketOffers.id, offerId))
-    return fail('Failed to send the email. Please try again.')
+    return fail(
+      `Failed to send the ${method === 'email' ? 'email' : 'text message'}. Please try again.`,
+    )
   }
 
   await db.insert(ticketEvents).values({
@@ -78,7 +93,7 @@ export async function sendOffer(
     actorAdminId: admin.id,
     eventType: 'offered',
     targetUserId: userId,
-    details: JSON.stringify({method: 'email'}),
+    details: JSON.stringify({method}),
   })
 
   revalidatePath(`/admin/tickets/${ticketId}/offer`)

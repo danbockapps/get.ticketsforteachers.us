@@ -92,7 +92,7 @@ New page or modal (e.g. `app/admin/tickets/[id]/offer/page.tsx`):
 
 - [x] Entered from the "Offer" button on a specific ticket in the list — the ticket is already known, no picker needed.
 - [x] Pick a domain (auto-selected from the ticket's domain — admin doesn't pick again).
-- [ ] Pick a method: Email or SMS. (Email-only for now; SMS toggle added in step 6.)
+- [x] Pick a method: Email or SMS.
 - [x] User list showing each user's:
   - [x] Name
   - [x] Preferences (event types, ADA needs, primary worksite)
@@ -105,7 +105,7 @@ New page or modal (e.g. `app/admin/tickets/[id]/offer/page.tsx`):
 Server action when "Send offer" is clicked for a single user:
 
 - [x] Generate a random token and insert a `ticket_offers` row.
-- [x] Send the message (email via existing email sender; SMS via existing SMS sender). (Email-only; SMS in step 6.)
+- [x] Send the message (email via existing email sender; SMS via existing SMS sender).
 - [x] Log `offered` event in `ticket_events`.
 - [x] Update the row in place (button becomes "Send again", show new offer timestamp).
 
@@ -182,7 +182,7 @@ On each ticket's expanded view, show `ticket_events` newest-first as a timeline:
 - [x] 3. Create ticket form + action.
 - [x] 4. Offer flow (user picker + send action) — start with email only.
 - [x] 5. Public offer page with Accept/Decline + atomic claim.
-- [ ] 6. Add SMS as a second method.
+- [x] 6. Add SMS as a second method.
 - [ ] 7. Mark sent + manual status change.
 - [ ] 8. Audit log timeline on ticket detail.
 - [ ] 9. Polish: filters on the list (status, date range, domain), "Show sent" toggle, per-user send-failure surfacing.

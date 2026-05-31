@@ -69,7 +69,7 @@ Lucia needs the raw `sqlite` instance (not the Drizzle `db`) for its adapter —
 
 `app/page.tsx` checks the user's state and renders one of three views:
 
-- **`AdminView`** — if the user has a row in the `admins` table
+- **`AdminView`** — if the user has any row in the `domain_admins` bridge table (i.e. is an admin for at least one domain)
 - **`LoggedInView`** — regular authenticated user; shows phone verification status and preferences
 - **`LoggedOutView`** — unauthenticated; links to `/register` and `/login`
 

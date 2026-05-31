@@ -1,4 +1,4 @@
-import {index, integer, real, sqliteTable, text} from 'drizzle-orm/sqlite-core'
+import {index, integer, primaryKey, real, sqliteTable, text} from 'drizzle-orm/sqlite-core'
 
 export type TicketStatus = 'unclaimed' | 'claimed' | 'sent'
 
@@ -49,12 +49,30 @@ export const magicLinkTokens = sqliteTable(
   }),
 )
 
-export const admins = sqliteTable('admins', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => users.id, {onDelete: 'cascade'}),
-  domains: text('domains').notNull(), // JSON array of domain strings
+export const domains = sqliteTable('domains', {
+  domain: text('domain').primaryKey(),
+  createdAt: text('created_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
 })
+
+// Bridge table: one row = "this user is an admin for this domain".
+// A user can administer many domains; a domain can have many admins.
+export const domainAdmins = sqliteTable(
+  'domain_admins',
+  {
+    domain: text('domain')
+      .notNull()
+      .references(() => domains.domain, {onDelete: 'cascade'}),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+  },
+  (table) => ({
+    pk: primaryKey({columns: [table.domain, table.userId]}),
+    userIdIdx: index('idx_domain_admins_user_id').on(table.userId),
+  }),
+)
 
 export const tickets = sqliteTable(
   'tickets',
@@ -76,11 +94,13 @@ export const tickets = sqliteTable(
     claimedAt: text('claimed_at'),
     createdByAdminId: text('created_by_admin_id')
       .notNull()
-      .references(() => admins.userId, {onDelete: 'restrict'}),
+      .references(() => users.id, {onDelete: 'restrict'}),
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
-    domain: text('domain').notNull(),
+    domain: text('domain')
+      .notNull()
+      .references(() => domains.domain, {onDelete: 'restrict'}),
   },
   (table) => ({
     statusIdx: index('idx_tickets_status').on(table.status),
@@ -120,7 +140,7 @@ export const ticketEvents = sqliteTable(
       .notNull()
       .references(() => tickets.id, {onDelete: 'cascade'}),
     actorUserId: text('actor_user_id').references(() => users.id, {onDelete: 'set null'}),
-    actorAdminId: text('actor_admin_id').references(() => admins.userId, {onDelete: 'set null'}),
+    actorAdminId: text('actor_admin_id').references(() => users.id, {onDelete: 'set null'}),
     eventType: text('event_type').notNull(), // 'created' | 'offered' | 'accepted' | 'declined' | 'marked_sent' | 'status_changed'
     targetUserId: text('target_user_id').references(() => users.id, {onDelete: 'set null'}),
     details: text('details'), // JSON
@@ -136,7 +156,8 @@ export const ticketEvents = sqliteTable(
 export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
-export type Admin = typeof admins.$inferSelect
+export type Domain = typeof domains.$inferSelect
+export type DomainAdmin = typeof domainAdmins.$inferSelect
 export type Ticket = typeof tickets.$inferSelect
 export type InsertTicket = typeof tickets.$inferInsert
 export type TicketOffer = typeof ticketOffers.$inferSelect

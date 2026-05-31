@@ -3,7 +3,7 @@ import LoggedInView from '@/app/LoggedInView'
 import LoggedOutView from '@/app/LoggedOutView'
 import {getUser} from '@/lib/auth'
 import {db} from '@/lib/db'
-import {admins} from '@/lib/schema'
+import {domainAdmins} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
 
 export default async function Home({
@@ -18,9 +18,12 @@ export default async function Home({
   const user = await getUser()
   if (!user) return <LoggedOutView />
 
-  const adminRows = await db.select().from(admins).where(eq(admins.userId, user.id))
+  const adminRows = await db
+    .select({domain: domainAdmins.domain})
+    .from(domainAdmins)
+    .where(eq(domainAdmins.userId, user.id))
   if (adminRows.length > 0) {
-    const domains: string[] = JSON.parse(adminRows[0].domains)
+    const domains = adminRows.map((r) => r.domain)
     const params = await searchParams
     return (
       <AdminView

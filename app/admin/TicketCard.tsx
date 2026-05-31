@@ -89,16 +89,12 @@ export default function TicketCard({
         <TicketActivity events={ticket.events} />
         <div className="divider my-3" />
         <div className="flex flex-wrap gap-2">
-          {ticket.status === 'sent' ? (
-            <button className="btn btn-sm btn-primary" disabled>
-              Offer
-            </button>
-          ) : (
+          {ticket.status === 'unclaimed' && (
             <Link href={`/admin/tickets/${ticket.id}/offer`} className="btn btn-sm btn-primary">
               Offer
             </Link>
           )}
-          <MarkSentButton ticketId={ticket.id} disabled={ticket.status === 'sent'} />
+          {ticket.status === 'claimed' && <MarkSentButton ticketId={ticket.id} />}
           <Link href={`/admin/tickets/${ticket.id}/status`} className="btn btn-sm">
             Change Status
           </Link>

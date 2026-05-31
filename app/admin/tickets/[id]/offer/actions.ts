@@ -17,7 +17,7 @@ export async function sendOffer(
   _prevState: SendOfferState,
   formData: FormData,
 ): Promise<SendOfferState> {
-  const ticketId = (formData.get('ticketId') as string) ?? ''
+  const ticketId = Number(formData.get('ticketId'))
   const userId = (formData.get('userId') as string) ?? ''
   const methodRaw = (formData.get('method') as string) ?? 'email'
   if (methodRaw !== 'email' && methodRaw !== 'sms') {
@@ -29,6 +29,7 @@ export async function sendOffer(
 
   const fail = (error: string): SendOfferState => ({error, key: Date.now()})
 
+  if (!Number.isInteger(ticketId)) return fail('Ticket not found.')
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId))
   const ticket = ticketRows[0]
   if (!ticket) return fail('Ticket not found.')
@@ -64,17 +65,19 @@ export async function sendOffer(
   }
 
   const token = generateToken()
-  const offerId = generateToken()
   const now = new Date().toISOString()
 
-  await db.insert(ticketOffers).values({
-    id: offerId,
-    ticketId,
-    userId,
-    token,
-    method,
-    sentAt: now,
-  })
+  const [insertedOffer] = await db
+    .insert(ticketOffers)
+    .values({
+      ticketId,
+      userId,
+      token,
+      method,
+      sentAt: now,
+    })
+    .returning({id: ticketOffers.id})
+  const offerId = insertedOffer.id
 
   try {
     if (method === 'email') await sendOfferEmail(recipient, ticket, token)

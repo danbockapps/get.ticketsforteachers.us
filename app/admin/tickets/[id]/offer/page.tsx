@@ -16,11 +16,13 @@ export default async function OfferTicketPage({
   params: Promise<{id: string}>
   searchParams: Promise<{method?: string}>
 }) {
-  const {id} = await params
+  const {id: idParam} = await params
+  const id = Number(idParam)
   const {method: methodRaw} = await searchParams
   const method: OfferMethod = methodRaw === 'sms' ? 'sms' : 'email'
   const {domains} = await requireAdmin()
 
+  if (!Number.isInteger(id)) notFound()
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, id))
   const ticket = ticketRows[0]
   if (!ticket) notFound()

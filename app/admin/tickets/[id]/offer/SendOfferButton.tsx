@@ -11,7 +11,7 @@ export default function SendOfferButton({
   disabledReason,
   hasPriorOffer,
 }: {
-  ticketId: string
+  ticketId: number
   userId: string
   method: OfferMethod
   disabled: boolean

@@ -31,7 +31,7 @@ export default function UserOfferRow({
   lastOfferAt,
   withinCooldown,
 }: {
-  ticketId: string
+  ticketId: number
   user: OfferableUser
   method: OfferMethod
   lastOfferAt: string | null

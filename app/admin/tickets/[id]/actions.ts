@@ -11,10 +11,11 @@ import {redirect} from 'next/navigation'
 export type MarkSentState = {error: string; key: number} | null
 
 export async function markSent(_prev: MarkSentState, formData: FormData): Promise<MarkSentState> {
-  const ticketId = (formData.get('ticketId') as string) ?? ''
+  const ticketId = Number(formData.get('ticketId'))
   const {user: admin, domains} = await requireAdmin()
   const fail = (error: string): MarkSentState => ({error, key: Date.now()})
 
+  if (!Number.isInteger(ticketId)) return fail('Ticket not found.')
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId))
   const ticket = ticketRows[0]
   if (!ticket) return fail('Ticket not found.')
@@ -41,7 +42,7 @@ export async function changeStatus(
   _prev: ChangeStatusState,
   formData: FormData,
 ): Promise<ChangeStatusState> {
-  const ticketId = (formData.get('ticketId') as string) ?? ''
+  const ticketId = Number(formData.get('ticketId'))
   const nextStatusRaw = (formData.get('status') as string) ?? ''
   const claimedByUserId = ((formData.get('claimedByUserId') as string) ?? '').trim() || null
 
@@ -53,6 +54,7 @@ export async function changeStatus(
   const {user: admin, domains} = await requireAdmin()
   const fail = (error: string): ChangeStatusState => ({error, key: Date.now()})
 
+  if (!Number.isInteger(ticketId)) return fail('Ticket not found.')
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId))
   const ticket = ticketRows[0]
   if (!ticket) return fail('Ticket not found.')

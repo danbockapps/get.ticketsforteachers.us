@@ -4,7 +4,6 @@ import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {tickets} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
-import {generateToken} from '@/lib/tokens'
 import {redirect} from 'next/navigation'
 
 type Fields = {
@@ -85,25 +84,26 @@ export async function createTicket(
   if (!domain) return fail('Domain is required.')
   if (!domains.includes(domain)) return fail('You do not have access to that domain.')
 
-  const ticketId = generateToken()
-
-  await db.insert(tickets).values({
-    id: ticketId,
-    description,
-    quantity,
-    eventAt: eventDate.toISOString(),
-    location,
-    adaAccessible,
-    parkingIncluded,
-    marketValue,
-    section: section || null,
-    row: row || null,
-    seats: seats || null,
-    notes: notes || null,
-    status: 'unclaimed',
-    createdByAdminId: user.id,
-    domain,
-  })
+  const [inserted] = await db
+    .insert(tickets)
+    .values({
+      description,
+      quantity,
+      eventAt: eventDate.toISOString(),
+      location,
+      adaAccessible,
+      parkingIncluded,
+      marketValue,
+      section: section || null,
+      row: row || null,
+      seats: seats || null,
+      notes: notes || null,
+      status: 'unclaimed',
+      createdByAdminId: user.id,
+      domain,
+    })
+    .returning({id: tickets.id})
+  const ticketId = inserted.id
 
   await logTicketEvent({
     ticketId,

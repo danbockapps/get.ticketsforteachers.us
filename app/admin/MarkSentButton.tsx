@@ -3,7 +3,7 @@
 import {useActionState} from 'react'
 import {markSent} from '@/app/admin/tickets/[id]/actions'
 
-export default function MarkSentButton({ticketId}: {ticketId: string}) {
+export default function MarkSentButton({ticketId}: {ticketId: number}) {
   const [state, action, pending] = useActionState(markSent, null)
 
   return (

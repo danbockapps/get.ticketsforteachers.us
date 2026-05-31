@@ -2,7 +2,7 @@ import {formatActivityTimestamp} from '@/app/admin/format'
 import type {TicketEventVariant} from '@/lib/ticketEvents'
 
 export type ActivityEvent = {
-  id: string
+  id: number
   createdAt: string
   actorName: string | null
   targetName: string | null

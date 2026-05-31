@@ -118,6 +118,22 @@ The entrypoint runs Drizzle migrations against the SQLite file before starting t
 
 ## Redeploy / update
 
+> **⚠️ One-time breaking migration (`0008`, `0009`).** These migrations convert the
+> primary keys of `tickets`, `ticket_offers`, and `ticket_events` from random text ids to
+> autoincrement integers. They rebuild each table with `INSERT ... SELECT "id"`, which
+> **fails if those tables already contain rows with the old text ids** — SQLite rejects a
+> hex string in an `INTEGER PRIMARY KEY` column, and the container will crash on startup
+> when the entrypoint runs migrations. Because the app had only test data, the intended
+> path is to **wipe the database before deploying these migrations**:
+>
+> ```
+> docker stop tickets-for-teachers; docker rm tickets-for-teachers
+> sudo rm -f /var/lib/tickets-for-teachers/database.db*   # removes -wal/-shm too
+> ```
+>
+> The next container start recreates the schema from scratch. Skip this once the
+> migrations have been applied — it's only needed for the deploy that first includes them.
+
 For every code change after the initial setup:
 
 ```
@@ -149,3 +165,4 @@ docker rm tickets-for-teachers
 - **Container starts then crashes; logs show a SQLite open error or `EACCES` on `/app/data`.** The host data directory isn't owned by `1001:1001`. Fix: `sudo chown -R 1001:1001 /var/lib/tickets-for-teachers`, then `docker rm tickets-for-teachers` and re-run `./scripts/docker-run.sh`.
 - **`certbot --nginx` can't obtain a cert.** Usually DNS hasn't propagated yet. Confirm `dig +short tickets-for-teachers.danbock.net` returns the VPS's public IP (`curl ifconfig.me` from the VPS shows what that IP is). Re-run certbot once they match.
 - **`./scripts/docker-run.sh` errors that the image doesn't exist.** Build it first: `docker build -t tickets-for-teachers .`.
+- **Container crashes on startup after pulling migrations `0008`/`0009`; logs show a SQLite datatype/`INTEGER PRIMARY KEY` error during migration.** The database still holds rows with the old text ids that these migrations can't convert. See the breaking-migration note under [Redeploy / update](#redeploy--update) — wipe `/var/lib/tickets-for-teachers/database.db*` and restart the container.

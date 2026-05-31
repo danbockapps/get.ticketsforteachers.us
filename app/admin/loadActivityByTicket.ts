@@ -4,8 +4,8 @@ import {ticketEvents, users} from '@/lib/schema'
 import {desc, inArray} from 'drizzle-orm'
 
 export async function loadActivityByTicket(
-  ticketIds: string[],
-): Promise<Map<string, ActivityEvent[]>> {
+  ticketIds: number[],
+): Promise<Map<number, ActivityEvent[]>> {
   if (ticketIds.length === 0) return new Map()
 
   const eventRows = await db
@@ -21,7 +21,7 @@ export async function loadActivityByTicket(
     })
     .from(ticketEvents)
     .where(inArray(ticketEvents.ticketId, ticketIds))
-    .orderBy(desc(ticketEvents.createdAt))
+    .orderBy(desc(ticketEvents.id))
 
   const involvedUserIds = new Set<string>()
   for (const e of eventRows) {
@@ -38,7 +38,7 @@ export async function loadActivityByTicket(
           .where(inArray(users.id, [...involvedUserIds]))
   const nameById = new Map(userRows.map((u) => [u.id, `${u.firstName} ${u.lastName}`]))
 
-  const eventsByTicket = new Map<string, ActivityEvent[]>()
+  const eventsByTicket = new Map<number, ActivityEvent[]>()
   for (const e of eventRows) {
     const actorId = e.actorAdminId ?? e.actorUserId
     const list = eventsByTicket.get(e.ticketId) ?? []

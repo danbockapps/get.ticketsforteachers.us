@@ -59,7 +59,7 @@ export const admins = sqliteTable('admins', {
 export const tickets = sqliteTable(
   'tickets',
   {
-    id: text('id').primaryKey(),
+    id: integer('id').primaryKey({autoIncrement: true}),
     description: text('description').notNull(),
     quantity: integer('quantity').notNull(),
     eventAt: text('event_at').notNull(), // ISO timestamp
@@ -91,8 +91,8 @@ export const tickets = sqliteTable(
 export const ticketOffers = sqliteTable(
   'ticket_offers',
   {
-    id: text('id').primaryKey(),
-    ticketId: text('ticket_id')
+    id: integer('id').primaryKey({autoIncrement: true}),
+    ticketId: integer('ticket_id')
       .notNull()
       .references(() => tickets.id, {onDelete: 'cascade'}),
     userId: text('user_id')
@@ -115,8 +115,8 @@ export const ticketOffers = sqliteTable(
 export const ticketEvents = sqliteTable(
   'ticket_events',
   {
-    id: text('id').primaryKey(),
-    ticketId: text('ticket_id')
+    id: integer('id').primaryKey({autoIncrement: true}),
+    ticketId: integer('ticket_id')
       .notNull()
       .references(() => tickets.id, {onDelete: 'cascade'}),
     actorUserId: text('actor_user_id').references(() => users.id, {onDelete: 'set null'}),

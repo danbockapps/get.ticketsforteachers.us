@@ -4,7 +4,7 @@ import {db} from '@/lib/db'
 import {sendMagicLink, sendWorkEmailVerification} from '@/lib/email'
 import {sendPhoneVerification} from '@/lib/sms'
 import {users} from '@/lib/schema'
-import {createMagicLinkToken, generateToken} from '@/lib/tokens'
+import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
 
@@ -101,7 +101,7 @@ export async function register(
     }
   }
 
-  const id = generateToken()
+  const id = generateId()
   await db.insert(users).values({
     id,
     email,

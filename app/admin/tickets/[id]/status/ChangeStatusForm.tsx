@@ -10,7 +10,7 @@ export default function ChangeStatusForm({
   currentClaimedByUserId,
   users,
 }: {
-  ticketId: string
+  ticketId: number
   currentStatus: TicketStatus
   currentClaimedByUserId: string | null
   users: {id: string; firstName: string; lastName: string; email: string}[]

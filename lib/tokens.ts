@@ -5,12 +5,21 @@ import {eq, and} from 'drizzle-orm'
 const DEFAULT_TTL_SECONDS = 15 * 60 // 15 minutes
 const PHONE_TTL_SECONDS = 60 * 60 // 1 hour (user must log in via email first)
 
+// 256-bit hex token for bearer secrets that appear in URLs/SMS (magic links, offer links).
 export function generateToken(): string {
   const bytes = new Uint8Array(32)
   crypto.getRandomValues(bytes)
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
+}
+
+// 128-bit base64url id for non-enumerable primary keys (e.g. users.id). Random — not
+// sequential — so it never leaks user count or signup order, but far shorter than a token.
+export function generateId(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  return Buffer.from(bytes).toString('base64url')
 }
 
 export async function createMagicLinkToken(

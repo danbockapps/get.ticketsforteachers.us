@@ -1,6 +1,5 @@
 import {db} from '@/lib/db'
 import {ticketEvents, type TicketStatus} from '@/lib/schema'
-import {generateToken} from '@/lib/tokens'
 
 export type EventDetailsByType = {
   created: null
@@ -36,14 +35,13 @@ type DetailsField<K extends TicketEventType> = EventDetailsByType[K] extends nul
   : {details: EventDetailsByType[K]}
 
 export type LogEventInput = {
-  [K in TicketEventType]: {ticketId: string; eventType: K} & ActorAndTargetByType[K] &
+  [K in TicketEventType]: {ticketId: number; eventType: K} & ActorAndTargetByType[K] &
     DetailsField<K>
 }[TicketEventType]
 
 export async function logTicketEvent(input: LogEventInput): Promise<void> {
   const detailsObj = 'details' in input ? input.details : null
   await db.insert(ticketEvents).values({
-    id: generateToken(),
     ticketId: input.ticketId,
     actorAdminId: 'actorAdminId' in input ? input.actorAdminId : null,
     actorUserId: 'actorUserId' in input ? input.actorUserId : null,

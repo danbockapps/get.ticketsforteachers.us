@@ -8,9 +8,11 @@ import {tickets, users} from '@/lib/schema'
 import {and, eq, like} from 'drizzle-orm'
 
 export default async function ChangeStatusPage({params}: {params: Promise<{id: string}>}) {
-  const {id} = await params
+  const {id: idParam} = await params
+  const id = Number(idParam)
   const {domains} = await requireAdmin()
 
+  if (!Number.isInteger(id)) notFound()
   const ticketRows = await db.select().from(tickets).where(eq(tickets.id, id))
   const ticket = ticketRows[0]
   if (!ticket) notFound()

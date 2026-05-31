@@ -6,7 +6,7 @@ import {db} from '@/lib/db'
 import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
-import {generateToken} from '@/lib/tokens'
+import {generateSecret} from '@/lib/tokens'
 import {and, desc, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -64,7 +64,7 @@ export async function sendOffer(
     }
   }
 
-  const token = generateToken()
+  const token = generateSecret(20) // 160-bit; offer links live until the ticket is resolved
   const now = new Date().toISOString()
 
   const [insertedOffer] = await db

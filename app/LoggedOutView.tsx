@@ -9,10 +9,7 @@ export default function LoggedOutView() {
           <h1 className="card-title text-2xl">Welcome</h1>
           <p className="text-base-content/70">You are not logged in.</p>
           <div className="card-actions mt-2">
-            <a href="/register" className="btn btn-primary">
-              Create an account
-            </a>
-            <a href="/login" className="btn btn-ghost">
+            <a href="/login" className="btn btn-primary">
               Sign in
             </a>
           </div>

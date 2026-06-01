@@ -3,7 +3,7 @@
 import {db} from '@/lib/db'
 import {sendMagicLink, sendWorkEmailVerification} from '@/lib/email'
 import {sendPhoneVerification} from '@/lib/sms'
-import {users} from '@/lib/schema'
+import {domains, users} from '@/lib/schema'
 import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
@@ -12,6 +12,12 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function normalizePhone(raw: string): string {
   return raw.replace(/\D/g, '')
+}
+
+// True when the email's host is the domain itself or a subdomain of it.
+function emailInDomain(email: string, domain: string): boolean {
+  const host = email.slice(email.lastIndexOf('@') + 1)
+  return host === domain || host.endsWith(`.${domain}`)
 }
 
 type RegisterFields = {
@@ -35,6 +41,7 @@ export async function register(
   const lastName = (formData.get('lastName') as string)?.trim()
   const email = (formData.get('email') as string)?.trim().toLowerCase()
   const workEmail = (formData.get('workEmail') as string)?.trim().toLowerCase()
+  const domain = (formData.get('domain') as string)?.trim().toLowerCase()
   const rawPhone = (formData.get('phone') as string)?.trim()
   const eventTypes = formData.getAll('eventTypes') as string[]
   const adaAccessible = formData.get('adaAccessible') === 'on'
@@ -69,6 +76,24 @@ export async function register(
 
   if (email === workEmail) {
     return fail('Personal and work email addresses must be different.')
+  }
+
+  if (!domain) {
+    return fail('Registration requires a valid program link from your administrator.')
+  }
+
+  const knownDomain = await db.select().from(domains).where(eq(domains.domain, domain))
+  if (knownDomain.length === 0) {
+    return fail('Registration requires a valid program link from your administrator.')
+  }
+
+  if (!emailInDomain(workEmail, domain)) {
+    return fail(`Your work email must be a @${domain} address.`)
+  }
+
+  // gmail.com is exempt so test accounts can use that domain for both emails.
+  if (domain !== 'gmail.com' && emailInDomain(email, domain)) {
+    return fail(`Your personal email must not be a @${domain} address.`)
   }
 
   let phone: string | null = null

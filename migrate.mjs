@@ -9,7 +9,14 @@ mkdirSync(dirname(dbPath), {recursive: true})
 
 const sqlite = new Database(dbPath)
 sqlite.pragma('journal_mode = WAL')
-sqlite.pragma('foreign_keys = ON')
+// Keep foreign keys OFF during migration. Drizzle's better-sqlite3 migrator
+// runs every migration inside a single BEGIN...COMMIT, and SQLite ignores
+// `PRAGMA foreign_keys` changes inside a transaction — so the OFF/ON pragmas
+// the generated migrations emit are no-ops. With enforcement left ON, the
+// table-recreation pattern (CREATE __new / copy / DROP old / RENAME) would
+// cascade-delete child rows when the old parent table is dropped. The app's
+// own connection (lib/db.ts) enables foreign keys for runtime enforcement.
+sqlite.pragma('foreign_keys = OFF')
 
 const db = drizzle(sqlite)
 migrate(db, {migrationsFolder: './drizzle'})

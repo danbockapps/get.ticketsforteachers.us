@@ -7,6 +7,7 @@ import {eq} from 'drizzle-orm'
 import {requireAuth} from '@/lib/auth'
 import {createMagicLinkToken} from '@/lib/tokens'
 import {sendPhoneVerification} from '@/lib/sms'
+import {logAction} from '@/lib/logger'
 
 export async function savePreferences(_prevState: unknown, formData: FormData) {
   const user = await requireAuth()
@@ -18,6 +19,8 @@ export async function savePreferences(_prevState: unknown, formData: FormData) {
     .update(users)
     .set({eventPreferences: JSON.stringify(selected), adaAccessible, primaryWorksite})
     .where(eq(users.id, user.id))
+
+  await logAction('saved preferences', user)
 
   revalidatePath('/')
   return {success: true}
@@ -32,6 +35,8 @@ export async function resendPhoneVerification(): Promise<void> {
 
   const token = await createMagicLinkToken(user.id, 'phone')
   await sendPhoneVerification(dbUser.phone, token)
+
+  await logAction('resent phone verification', user)
 
   revalidatePath('/')
 }

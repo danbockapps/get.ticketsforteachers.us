@@ -4,6 +4,7 @@ import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {tickets, type TicketStatus, users} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
+import {logAction} from '@/lib/logger'
 import {eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 import {redirect} from 'next/navigation'
@@ -31,6 +32,8 @@ export async function markSent(_prev: MarkSentState, formData: FormData): Promis
     eventType: 'marked_sent',
     details: {prior, next: 'sent'},
   })
+
+  await logAction(`marked ticket ${ticketId} sent`, admin)
 
   revalidatePath('/')
   return null
@@ -111,6 +114,8 @@ export async function changeStatus(
       nextClaimedByUserId: updateClaimedByUserId,
     },
   })
+
+  await logAction(`changed ticket ${ticketId} status ${prior} → ${nextStatus}`, admin)
 
   revalidatePath('/')
   redirect('/')

@@ -5,6 +5,7 @@ import {db} from '@/lib/db'
 import {users} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
 import {cookies} from 'next/headers'
+import {logAction} from '@/lib/logger'
 
 function baseUrl(request: NextRequest): string {
   const host =
@@ -29,11 +30,13 @@ export async function GET(request: NextRequest) {
 
   if (result.emailType === 'work') {
     await db.update(users).set({workEmailVerified: true}).where(eq(users.id, result.userId))
+    await logAction(`verified work email for user ${result.userId}`)
     return NextResponse.redirect(new URL('/verified?type=work', base))
   }
 
   if (result.emailType === 'phone') {
     await db.update(users).set({phoneVerified: true}).where(eq(users.id, result.userId))
+    await logAction(`verified phone for user ${result.userId}`)
     return NextResponse.redirect(new URL('/verified?type=phone', base))
   }
 
@@ -55,6 +58,12 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies()
   cookieStore.set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
+
+  await logAction(
+    alreadyVerified
+      ? `signed in user ${result.userId}`
+      : `verified personal email for user ${result.userId}`,
+  )
 
   return NextResponse.redirect(new URL(alreadyVerified ? '/' : '/verified?type=personal', base))
 }

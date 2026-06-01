@@ -4,6 +4,7 @@ import {requireAdmin} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {tickets} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
+import {logAction} from '@/lib/logger'
 import {redirect} from 'next/navigation'
 
 type Fields = {
@@ -110,6 +111,8 @@ export async function createTicket(
     actorAdminId: user.id,
     eventType: 'created',
   })
+
+  await logAction(`created ticket ${ticketId} (${domain})`, user)
 
   redirect('/')
 }

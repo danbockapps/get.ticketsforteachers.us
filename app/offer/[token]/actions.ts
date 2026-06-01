@@ -3,6 +3,7 @@
 import {db} from '@/lib/db'
 import {ticketOffers, tickets} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
+import {logAction} from '@/lib/logger'
 import {and, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
@@ -38,6 +39,8 @@ export async function acceptOffer(
     eventType: 'accepted',
   })
 
+  await logAction(`user ${offer.userId} accepted offer for ticket ${offer.ticketId}`)
+
   revalidatePath(`/offer/${token}`)
   return null
 }
@@ -63,6 +66,8 @@ export async function declineOffer(
     actorUserId: offer.userId,
     eventType: 'declined',
   })
+
+  await logAction(`user ${offer.userId} declined offer for ticket ${offer.ticketId}`)
 
   revalidatePath(`/offer/${token}`)
   return null

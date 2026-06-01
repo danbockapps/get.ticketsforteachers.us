@@ -6,6 +6,7 @@ import {users} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
 import {createMagicLinkToken} from '@/lib/tokens'
 import {sendMagicLink} from '@/lib/email'
+import {logAction} from '@/lib/logger'
 
 export async function login(_prevState: unknown, formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase()
@@ -23,6 +24,8 @@ export async function login(_prevState: unknown, formData: FormData) {
 
   const token = await createMagicLinkToken(user.id, 'personal')
   await sendMagicLink(email, token)
+
+  await logAction(`login link sent for ${email}`)
 
   redirect('/check-email')
 }

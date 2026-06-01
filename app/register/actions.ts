@@ -7,6 +7,7 @@ import {domains, users} from '@/lib/schema'
 import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
+import {logAction} from '@/lib/logger'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -148,6 +149,8 @@ export async function register(
     sendMagicLink(email, personalToken),
     sendWorkEmailVerification(workEmail, workToken),
   ])
+
+  await logAction(`registered ${email} for ${domain}`)
 
   if (phone) {
     try {

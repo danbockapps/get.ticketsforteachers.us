@@ -6,6 +6,7 @@ import {db} from '@/lib/db'
 import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {logTicketEvent} from '@/lib/ticketEvents'
+import {logAction} from '@/lib/logger'
 import {generateSecret} from '@/lib/tokens'
 import {and, desc, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
@@ -97,6 +98,8 @@ export async function sendOffer(
     targetUserId: userId,
     details: {method},
   })
+
+  await logAction(`offered ticket ${ticketId} to user ${userId} via ${method}`, admin)
 
   revalidatePath(`/admin/tickets/${ticketId}/offer`)
   return null

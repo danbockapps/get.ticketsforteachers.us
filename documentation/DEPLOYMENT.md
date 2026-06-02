@@ -111,7 +111,7 @@ Certbot rewrites the nginx config to add a `listen 443 ssl` block and reloads ng
 cd ~/projects/tickets-for-teachers
 docker build -t tickets-for-teachers .
 ./scripts/docker-run.sh
-docker logs tickets-for-teachers
+journalctl CONTAINER_NAME=tickets-for-teachers
 ```
 
 The entrypoint runs Drizzle migrations against the SQLite file before starting the server, so the database is initialized on first boot.
@@ -143,7 +143,7 @@ docker build -t tickets-for-teachers .
 docker stop tickets-for-teachers
 docker rm tickets-for-teachers
 ./scripts/docker-run.sh
-docker logs tickets-for-teachers
+journalctl CONTAINER_NAME=tickets-for-teachers
 ```
 
 Migrations run automatically on container start (`docker-entrypoint.sh` → `migrate.mjs`).
@@ -158,6 +158,21 @@ docker stop tickets-for-teachers
 docker rm tickets-for-teachers
 ./scripts/docker-run.sh
 ```
+
+## Logs
+
+The app logs one line per server action/route handler (via `logAction()`) to stdout. `scripts/docker-run.sh` runs the container with `--log-driver journald`, so these lines go to the host's systemd journal rather than Docker's default per-container `json-file`. This matters because the redeploy flow does `docker rm`, which **deletes a container's `json-file` logs** — the journal, owned by the host, survives container removal and rebuilds.
+
+View them with `journalctl`:
+
+```
+journalctl CONTAINER_NAME=tickets-for-teachers          # all history
+journalctl CONTAINER_NAME=tickets-for-teachers -f       # follow (like `docker logs -f`)
+journalctl CONTAINER_NAME=tickets-for-teachers --since today
+journalctl CONTAINER_NAME=tickets-for-teachers --since "1 hour ago"
+```
+
+`docker logs tickets-for-teachers` no longer works with this driver — use the `journalctl` commands above instead. Retention and rotation are handled by the host journal config (`/etc/systemd/journald.conf`); no per-container log cleanup is needed.
 
 ## Troubleshooting
 

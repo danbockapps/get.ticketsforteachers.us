@@ -1,6 +1,6 @@
+import {formatEventAt} from '@/app/admin/format'
 import AcceptButton from '@/app/offer/[token]/AcceptButton'
 import DeclineButton from '@/app/offer/[token]/DeclineButton'
-import {formatEventAt, formatMoney} from '@/app/admin/format'
 import {db} from '@/lib/db'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
@@ -61,10 +61,6 @@ export default async function OfferPage({params}: {params: Promise<{token: strin
               <dd>
                 {ticket.quantity} {ticket.quantity === 1 ? 'ticket' : 'tickets'}
               </dd>
-              <dt className="text-base-content/60">Market value</dt>
-              <dd>{formatMoney(ticket.marketValue)}</dd>
-              <dt className="text-base-content/60">ADA accessible</dt>
-              <dd>{ticket.adaAccessible ? 'Yes' : 'No'}</dd>
               <dt className="text-base-content/60">Parking</dt>
               <dd>{ticket.parkingIncluded ? 'Included' : 'Not included'}</dd>
               {ticket.section && (

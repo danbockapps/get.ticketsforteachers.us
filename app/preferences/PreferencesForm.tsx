@@ -4,7 +4,11 @@ import {useActionState} from 'react'
 import {savePreferences} from './actions'
 import PreferenceFields from './PreferenceFields'
 
-export default function PreferencesForm({preferences}: {preferences: {eventTypes: string[]}}) {
+export default function PreferencesForm({
+  preferences,
+}: {
+  preferences: {eventTypes: string[]; contactMethod?: string}
+}) {
   const [state, action, pending] = useActionState(savePreferences, null)
 
   return (

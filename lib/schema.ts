@@ -12,6 +12,7 @@ export const users = sqliteTable('users', {
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   eventPreferences: text('event_preferences'), // JSON array of strings
+  contactMethod: text('contact_method').notNull().default('email'), // 'email' | 'sms' | 'sms_same_day'
   adaAccessible: integer('ada_accessible', {mode: 'boolean'}).notNull().default(false),
   primaryWorksite: text('primary_worksite'),
   phone: text('phone').unique(),

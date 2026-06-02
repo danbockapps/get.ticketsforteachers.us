@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `contact_method` text DEFAULT 'email' NOT NULL;

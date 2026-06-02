@@ -8,6 +8,7 @@ import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
 import {logAction} from '@/lib/logger'
+import {DEFAULT_CONTACT_METHOD} from '@/app/preferences/constants'
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -29,6 +30,7 @@ type RegisterFields = {
   phone: string
   eventTypes: string[]
   primaryWorksite: string
+  contactMethod: string
 }
 
 type RegisterState = {error: string; fields: RegisterFields; key: number} | null
@@ -45,6 +47,7 @@ export async function register(
   const rawPhone = (formData.get('phone') as string)?.trim()
   const eventTypes = formData.getAll('eventTypes') as string[]
   const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || ''
+  const contactMethod = (formData.get('contactMethod') as string) || DEFAULT_CONTACT_METHOD
 
   const fields: RegisterFields = {
     firstName,
@@ -54,6 +57,7 @@ export async function register(
     phone: rawPhone,
     eventTypes,
     primaryWorksite,
+    contactMethod,
   }
 
   function fail(error: string): RegisterState {
@@ -134,6 +138,7 @@ export async function register(
     lastName,
     eventPreferences: JSON.stringify(eventTypes),
     primaryWorksite: primaryWorksite || null,
+    contactMethod,
   })
 
   const [personalToken, workToken] = await Promise.all([

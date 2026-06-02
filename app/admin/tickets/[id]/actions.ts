@@ -120,3 +120,68 @@ export async function changeStatus(
   revalidatePath('/')
   redirect('/')
 }
+
+export type DeleteTicketState = {error: string; key: number} | null
+
+export async function deleteTicket(
+  _prev: DeleteTicketState,
+  formData: FormData,
+): Promise<DeleteTicketState> {
+  const ticketId = Number(formData.get('ticketId'))
+  const {user: admin, domains} = await requireAdmin()
+  const fail = (error: string): DeleteTicketState => ({error, key: Date.now()})
+
+  if (!Number.isInteger(ticketId)) return fail('Ticket not found.')
+  const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId))
+  const ticket = ticketRows[0]
+  if (!ticket) return fail('Ticket not found.')
+  if (!domains.includes(ticket.domain)) return fail('You do not have access to this ticket.')
+  if (ticket.deletedAt) return fail('Ticket is already deleted.')
+
+  await db
+    .update(tickets)
+    .set({deletedAt: new Date().toISOString()})
+    .where(eq(tickets.id, ticketId))
+
+  await logTicketEvent({
+    ticketId,
+    actorAdminId: admin.id,
+    eventType: 'deleted',
+  })
+
+  await logAction(`deleted ticket ${ticketId}`, admin)
+
+  revalidatePath('/')
+  return null
+}
+
+export type RestoreTicketState = {error: string; key: number} | null
+
+export async function restoreTicket(
+  _prev: RestoreTicketState,
+  formData: FormData,
+): Promise<RestoreTicketState> {
+  const ticketId = Number(formData.get('ticketId'))
+  const {user: admin, domains} = await requireAdmin()
+  const fail = (error: string): RestoreTicketState => ({error, key: Date.now()})
+
+  if (!Number.isInteger(ticketId)) return fail('Ticket not found.')
+  const ticketRows = await db.select().from(tickets).where(eq(tickets.id, ticketId))
+  const ticket = ticketRows[0]
+  if (!ticket) return fail('Ticket not found.')
+  if (!domains.includes(ticket.domain)) return fail('You do not have access to this ticket.')
+  if (!ticket.deletedAt) return fail('Ticket is not deleted.')
+
+  await db.update(tickets).set({deletedAt: null}).where(eq(tickets.id, ticketId))
+
+  await logTicketEvent({
+    ticketId,
+    actorAdminId: admin.id,
+    eventType: 'restored',
+  })
+
+  await logAction(`restored ticket ${ticketId}`, admin)
+
+  revalidatePath('/')
+  return null
+}

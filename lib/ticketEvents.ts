@@ -13,6 +13,9 @@ export type EventDetailsByType = {
     priorClaimedByUserId: string | null
     nextClaimedByUserId: string | null
   }
+  edited: null
+  deleted: null
+  restored: null
 }
 
 export type TicketEventType = keyof EventDetailsByType
@@ -28,6 +31,9 @@ type ActorAndTargetByType = {
   declined: {actorUserId: string}
   marked_sent: {actorAdminId: string}
   status_changed: {actorAdminId: string; targetUserId?: string | null}
+  edited: {actorAdminId: string}
+  deleted: {actorAdminId: string}
+  restored: {actorAdminId: string}
 }
 
 type DetailsField<K extends TicketEventType> = EventDetailsByType[K] extends null

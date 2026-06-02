@@ -103,6 +103,7 @@ export const tickets = sqliteTable(
     createdAt: text('created_at')
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
+    deletedAt: text('deleted_at'), // ISO timestamp; null = not deleted (soft-delete)
     domain: text('domain')
       .notNull()
       .references(() => domains.domain, {onDelete: 'restrict'}),
@@ -146,7 +147,7 @@ export const ticketEvents = sqliteTable(
       .references(() => tickets.id, {onDelete: 'cascade'}),
     actorUserId: text('actor_user_id').references(() => users.id, {onDelete: 'set null'}),
     actorAdminId: text('actor_admin_id').references(() => users.id, {onDelete: 'set null'}),
-    eventType: text('event_type').notNull(), // 'created' | 'offered' | 'accepted' | 'declined' | 'marked_sent' | 'status_changed'
+    eventType: text('event_type').notNull(), // 'created' | 'offered' | 'accepted' | 'declined' | 'marked_sent' | 'status_changed' | 'edited' | 'deleted' | 'restored'
     targetUserId: text('target_user_id').references(() => users.id, {onDelete: 'set null'}),
     details: text('details'), // JSON
     createdAt: text('created_at')

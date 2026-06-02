@@ -26,6 +26,12 @@ function describeEvent(e: ActivityEvent): string {
       const targetClause = e.targetName ? ` (claimer: ${e.targetName})` : ''
       return `Status changed from ${e.details.prior} to ${e.details.next}${targetClause} by ${actor}`
     }
+    case 'edited':
+      return `Edited by ${actor}`
+    case 'deleted':
+      return `Deleted by ${actor}`
+    case 'restored':
+      return `Restored by ${actor}`
   }
 }
 

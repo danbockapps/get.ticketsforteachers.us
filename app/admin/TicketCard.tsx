@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import DeleteTicketButton from '@/app/admin/DeleteTicketButton'
 import MarkSentButton from '@/app/admin/MarkSentButton'
+import RestoreTicketButton from '@/app/admin/RestoreTicketButton'
 import StatusBadge from '@/app/admin/StatusBadge'
 import TicketActivity, {type ActivityEvent} from '@/app/admin/TicketActivity'
 import {formatEventAt, formatMoney} from '@/app/admin/format'
@@ -87,18 +89,25 @@ export default function TicketCard({
         <TicketActivity events={ticket.events} />
         <div className="divider my-3" />
         <div className="flex flex-wrap gap-2">
-          {ticket.status === 'unclaimed' && (
-            <Link href={`/admin/tickets/${ticket.id}/offer`} className="btn btn-sm btn-primary">
-              Offer
-            </Link>
+          {ticket.deletedAt ? (
+            <RestoreTicketButton ticketId={ticket.id} />
+          ) : (
+            <>
+              {ticket.status === 'unclaimed' && (
+                <Link href={`/admin/tickets/${ticket.id}/offer`} className="btn btn-sm btn-primary">
+                  Offer
+                </Link>
+              )}
+              {ticket.status === 'claimed' && <MarkSentButton ticketId={ticket.id} />}
+              <Link href={`/admin/tickets/${ticket.id}/status`} className="btn btn-sm">
+                Change Status
+              </Link>
+              <Link href={`/admin/tickets/${ticket.id}/edit`} className="btn btn-sm btn-ghost">
+                Edit
+              </Link>
+              <DeleteTicketButton ticketId={ticket.id} />
+            </>
           )}
-          {ticket.status === 'claimed' && <MarkSentButton ticketId={ticket.id} />}
-          <Link href={`/admin/tickets/${ticket.id}/status`} className="btn btn-sm">
-            Change Status
-          </Link>
-          <button className="btn btn-sm btn-ghost" disabled>
-            Edit
-          </button>
         </div>
       </div>
     </details>

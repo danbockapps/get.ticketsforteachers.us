@@ -1,0 +1,1 @@
+ALTER TABLE `tickets` ADD `deleted_at` text;

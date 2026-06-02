@@ -10,6 +10,15 @@ import {tickets, users} from '@/lib/schema'
 import {and, desc, eq, gte, lte, type SQL} from 'drizzle-orm'
 import Link from 'next/link'
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+
+// Was the ticket soft-deleted within the last 30 days? Older deletions are
+// retained in the DB but no longer surfaced on the dashboard.
+function isRecentlyDeleted(deletedAt: string | null): boolean {
+  if (!deletedAt) return false
+  return Date.now() - new Date(deletedAt).getTime() <= THIRTY_DAYS_MS
+}
+
 export default async function AdminView({
   user,
   domains,
@@ -40,6 +49,7 @@ export default async function AdminView({
           location: tickets.location,
           adaAccessible: tickets.adaAccessible,
           parkingIncluded: tickets.parkingIncluded,
+          highValue: tickets.highValue,
           marketValue: tickets.marketValue,
           section: tickets.section,
           row: tickets.row,
@@ -50,6 +60,7 @@ export default async function AdminView({
           claimedAt: tickets.claimedAt,
           createdByAdminId: tickets.createdByAdminId,
           createdAt: tickets.createdAt,
+          deletedAt: tickets.deletedAt,
           domain: tickets.domain,
           claimerFirstName: users.firstName,
           claimerLastName: users.lastName,
@@ -62,9 +73,12 @@ export default async function AdminView({
   const eventsByTicket = await loadActivityByTicket(rows.map((r) => r.id))
   const rowsWithEvents = rows.map((r) => ({...r, events: eventsByTicket.get(r.id) ?? []}))
 
-  const claimed = rowsWithEvents.filter((t) => t.status === 'claimed')
-  const unclaimed = rowsWithEvents.filter((t) => t.status === 'unclaimed')
-  const sent = rowsWithEvents.filter((t) => t.status === 'sent')
+  const live = rowsWithEvents.filter((t) => !t.deletedAt)
+  const recentlyDeleted = rowsWithEvents.filter((t) => isRecentlyDeleted(t.deletedAt))
+
+  const claimed = live.filter((t) => t.status === 'claimed')
+  const unclaimed = live.filter((t) => t.status === 'unclaimed')
+  const sent = live.filter((t) => t.status === 'sent')
 
   return (
     <div className="min-h-screen bg-base-200 py-8">
@@ -100,7 +114,7 @@ export default async function AdminView({
 
         <DashboardFilters from={from} to={to} domainFilter={activeDomain} />
 
-        {rows.length === 0 ? (
+        {live.length === 0 && recentlyDeleted.length === 0 ? (
           <div className="card bg-base-100 shadow">
             <div className="card-body items-center text-center">
               <p className="text-base-content/60">No tickets match these filters.</p>
@@ -115,6 +129,11 @@ export default async function AdminView({
             />
             <TicketSection title="Unclaimed" emphasis="normal" ticketsInSection={unclaimed} />
             <CollapsibleTicketSection title="Sent" emphasis="muted" ticketsInSection={sent} />
+            <CollapsibleTicketSection
+              title="Recently deleted"
+              emphasis="muted"
+              ticketsInSection={recentlyDeleted}
+            />
           </>
         )}
       </div>

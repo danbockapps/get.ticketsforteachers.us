@@ -4,12 +4,44 @@ import Link from 'next/link'
 import {useActionState} from 'react'
 import {createTicket} from './actions'
 
-export default function CreateTicketForm({domains}: {domains: string[]}) {
+export default function CreateTicketForm({
+  domains,
+  defaultDomain,
+}: {
+  domains: string[]
+  defaultDomain?: string
+}) {
   const [state, action, pending] = useActionState(createTicket, null)
   const f = state?.fields
 
   return (
     <form key={state?.key} action={action} className="mt-4 flex flex-col gap-4">
+      {domains.length > 1 ? (
+        <div>
+          <label className="label" htmlFor="domain">
+            <span className="label-text">Domain</span>
+          </label>
+          <select
+            id="domain"
+            name="domain"
+            required
+            defaultValue={f?.domain ?? defaultDomain ?? ''}
+            className="select select-bordered w-full"
+          >
+            <option value="" disabled>
+              Select a domain
+            </option>
+            {domains.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <input type="hidden" name="domain" value={domains[0] ?? ''} />
+      )}
+
       <div>
         <label className="label" htmlFor="description">
           <span className="label-text">Description</span>
@@ -162,32 +194,6 @@ export default function CreateTicketForm({domains}: {domains: string[]}) {
           className="textarea textarea-bordered w-full"
         />
       </div>
-
-      {domains.length > 1 ? (
-        <div>
-          <label className="label" htmlFor="domain">
-            <span className="label-text">Domain</span>
-          </label>
-          <select
-            id="domain"
-            name="domain"
-            required
-            defaultValue={f?.domain ?? ''}
-            className="select select-bordered w-full"
-          >
-            <option value="" disabled>
-              Select a domain
-            </option>
-            {domains.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : (
-        <input type="hidden" name="domain" value={domains[0] ?? ''} />
-      )}
 
       {state?.error && (
         <div role="alert" className="alert alert-error">

@@ -1,17 +1,15 @@
 import Link from 'next/link'
 
 export default function DashboardFilters({
-  domains,
   from,
   to,
   domainFilter,
 }: {
-  domains: string[]
   from: string | null
   to: string | null
   domainFilter: string | null
 }) {
-  const hasActiveFilter = from || to || domainFilter
+  const hasActiveFilter = from || to
 
   return (
     <form
@@ -19,6 +17,7 @@ export default function DashboardFilters({
       action="/"
       className="card bg-base-100 shadow flex-row flex-wrap items-end gap-3 p-3"
     >
+      {domainFilter && <input type="hidden" name="domain" value={domainFilter} />}
       <label className="form-control">
         <div className="label py-1">
           <span className="label-text text-xs">From</span>
@@ -43,31 +42,14 @@ export default function DashboardFilters({
         />
       </label>
 
-      {domains.length > 1 && (
-        <label className="form-control">
-          <div className="label py-1">
-            <span className="label-text text-xs">Domain</span>
-          </div>
-          <select
-            name="domain"
-            defaultValue={domainFilter ?? ''}
-            className="select select-bordered select-sm"
-          >
-            <option value="">All</option>
-            {domains.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-
       <button type="submit" className="btn btn-sm btn-primary">
         Apply
       </button>
       {hasActiveFilter && (
-        <Link href="/" className="btn btn-sm btn-ghost">
+        <Link
+          href={domainFilter ? `/?domain=${encodeURIComponent(domainFilter)}` : '/'}
+          className="btn btn-sm btn-ghost"
+        >
           Clear
         </Link>
       )}

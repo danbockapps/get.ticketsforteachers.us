@@ -5,6 +5,7 @@ import {getUser} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {domainAdmins} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
+import {cookies} from 'next/headers'
 
 export default async function Home({
   searchParams,
@@ -25,13 +26,14 @@ export default async function Home({
   if (adminRows.length > 0) {
     const domains = adminRows.map((r) => r.domain)
     const params = await searchParams
+    const cookieDomain = (await cookies()).get('adminDomain')?.value
     return (
       <AdminView
         user={user}
         domains={domains}
         from={params.from ?? null}
         to={params.to ?? null}
-        domainFilter={params.domain ?? null}
+        domainFilter={params.domain ?? cookieDomain ?? null}
       />
     )
   }

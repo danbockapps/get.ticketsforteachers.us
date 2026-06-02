@@ -1,8 +1,14 @@
 import CreateTicketForm from '@/app/admin/tickets/new/CreateTicketForm'
 import {requireAdmin} from '@/lib/auth'
 
-export default async function NewTicketPage() {
+export default async function NewTicketPage({
+  searchParams,
+}: {
+  searchParams: Promise<{domain?: string}>
+}) {
   const {domains} = await requireAdmin()
+  const {domain} = await searchParams
+  const defaultDomain = domain && domains.includes(domain) ? domain : undefined
 
   return (
     <div className="min-h-screen bg-base-200 py-8">
@@ -14,7 +20,7 @@ export default async function NewTicketPage() {
               The ticket will be created as <span className="font-medium">unclaimed</span>. You can
               offer it to users from the dashboard once saved.
             </p>
-            <CreateTicketForm domains={domains} />
+            <CreateTicketForm domains={domains} defaultDomain={defaultDomain} />
           </div>
         </div>
       </div>

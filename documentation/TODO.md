@@ -1,4 +1,4 @@
-[ ] Remove ADA question
+[x] Remove ADA question
 [ ] Add multiple choice question for notification prefereence: 1. email 2. text 3. text for same day,, otherwise email
 [x] Don't show market value to users
 [ ] Booleean fieeld for high-value

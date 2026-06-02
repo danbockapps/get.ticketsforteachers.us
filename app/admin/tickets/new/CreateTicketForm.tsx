@@ -124,15 +124,6 @@ export default function CreateTicketForm({
         <label className="label cursor-pointer gap-2">
           <input
             type="checkbox"
-            name="adaAccessible"
-            defaultChecked={f?.adaAccessible}
-            className="checkbox"
-          />
-          <span className="label-text">ADA accessible</span>
-        </label>
-        <label className="label cursor-pointer gap-2">
-          <input
-            type="checkbox"
             name="parkingIncluded"
             defaultChecked={f?.parkingIncluded}
             className="checkbox"

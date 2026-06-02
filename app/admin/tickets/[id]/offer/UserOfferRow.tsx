@@ -10,7 +10,6 @@ export type OfferableUser = {
   phone: string | null
   phoneVerified: boolean
   eventPreferences: string | null
-  adaAccessible: boolean
   primaryWorksite: string | null
 }
 
@@ -72,7 +71,6 @@ export default function UserOfferRow({
         </p>
         <p className="text-base-content/70 text-sm">{contact}</p>
         <div className="mt-1 flex flex-wrap gap-1">
-          {user.adaAccessible && <span className="badge badge-outline badge-sm">ADA</span>}
           {user.primaryWorksite && (
             <span className="badge badge-outline badge-sm">{user.primaryWorksite}</span>
           )}

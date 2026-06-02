@@ -53,8 +53,6 @@ export default function TicketCard({
         <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
           <dt className="text-base-content/60">Market value</dt>
           <dd>{formatMoney(ticket.marketValue)}</dd>
-          <dt className="text-base-content/60">ADA accessible</dt>
-          <dd>{ticket.adaAccessible ? 'Yes' : 'No'}</dd>
           <dt className="text-base-content/60">Parking included</dt>
           <dd>{ticket.parkingIncluded ? 'Yes' : 'No'}</dd>
           {ticket.section && (

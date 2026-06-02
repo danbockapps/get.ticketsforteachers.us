@@ -3,9 +3,9 @@ import {EVENT_TYPES} from './constants'
 export default function PreferenceFields({
   preferences = {},
 }: {
-  preferences?: {eventTypes?: string[]; adaAccessible?: boolean; primaryWorksite?: string}
+  preferences?: {eventTypes?: string[]; primaryWorksite?: string}
 }) {
-  const {eventTypes = [], adaAccessible = false, primaryWorksite = ''} = preferences
+  const {eventTypes = [], primaryWorksite = ''} = preferences
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,19 +38,6 @@ export default function PreferenceFields({
           defaultValue={primaryWorksite}
           className="input input-bordered w-full"
         />
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <h2 className="font-semibold">Accessibility</h2>
-        <label className="flex cursor-pointer items-center gap-3">
-          <input
-            type="checkbox"
-            name="adaAccessible"
-            defaultChecked={adaAccessible}
-            className="checkbox checkbox-primary"
-          />
-          <span>Do you or your typical guest require ADA-accessible seating?</span>
-        </label>
       </div>
     </div>
   )

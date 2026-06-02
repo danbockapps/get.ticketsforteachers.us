@@ -12,7 +12,6 @@ type Fields = {
   quantity: string
   eventAt: string
   location: string
-  adaAccessible: boolean
   parkingIncluded: boolean
   marketValue: string
   section: string
@@ -34,7 +33,6 @@ export async function createTicket(
   const quantityRaw = (formData.get('quantity') as string)?.trim() ?? ''
   const eventAt = (formData.get('eventAt') as string)?.trim() ?? ''
   const location = (formData.get('location') as string)?.trim() ?? ''
-  const adaAccessible = formData.get('adaAccessible') === 'on'
   const parkingIncluded = formData.get('parkingIncluded') === 'on'
   const marketValueRaw = (formData.get('marketValue') as string)?.trim() ?? ''
   const section = (formData.get('section') as string)?.trim() ?? ''
@@ -49,7 +47,6 @@ export async function createTicket(
     quantity: quantityRaw,
     eventAt,
     location,
-    adaAccessible,
     parkingIncluded,
     marketValue: marketValueRaw,
     section,
@@ -92,7 +89,6 @@ export async function createTicket(
       quantity,
       eventAt: eventDate.toISOString(),
       location,
-      adaAccessible,
       parkingIncluded,
       marketValue,
       section: section || null,

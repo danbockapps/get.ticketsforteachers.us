@@ -82,16 +82,17 @@ On success, the user is redirected to `/check-email?emails=2` (both personal and
 
 Preference fields are collected at registration (`app/register/page.tsx`) and editable post-login on the home page via `app/LoggedInView.tsx`. Both surfaces share `app/preferences/PreferenceFields.tsx` for the form controls, and `app/preferences/constants.ts` for any fixed option lists.
 
-`PreferenceFields` accepts `{ eventTypes?, adaAccessible?, primaryWorksite? }`.
+`PreferenceFields` accepts `{ eventTypes?, primaryWorksite? }`.
+
+> **ADA is no longer surfaced anywhere.** The `ada_accessible` columns on both `users` (a preference) and `tickets` (a seat attribute) are retained in the schema but are no longer collected or displayed — all ADA UI was removed. New tickets/users fall back to the column default (`false`). Don't re-add ADA UI without product sign-off.
 
 The save logic lives in `app/preferences/actions.ts` (server action called by `PreferencesForm`) and `app/register/actions.ts`.
 
 ### UI → database mapping
 
-| UI pattern                    | Form field name   | DB column           | DB type                                         |
-| ----------------------------- | ----------------- | ------------------- | ----------------------------------------------- |
-| Checkbox group (multi-select) | `eventTypes`      | `event_preferences` | JSON array of strings in a `text` column        |
-| Text input                    | `primaryWorksite` | `primary_worksite`  | `text`                                          |
-| Single checkbox               | `adaAccessible`   | `ada_accessible`    | `integer` `{mode: 'boolean'}`, defaults `false` |
+| UI pattern                    | Form field name   | DB column           | DB type                                  |
+| ----------------------------- | ----------------- | ------------------- | ---------------------------------------- |
+| Checkbox group (multi-select) | `eventTypes`      | `event_preferences` | JSON array of strings in a `text` column |
+| Text input                    | `primaryWorksite` | `primary_worksite`  | `text`                                   |
 
 New preference fields follow the same pattern: add the control to `PreferenceFields.tsx`, add the column to `lib/schema.ts`, and run `yarn db:generate && yarn db:migrate`.

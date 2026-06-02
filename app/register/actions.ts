@@ -28,7 +28,6 @@ type RegisterFields = {
   workEmail: string
   phone: string
   eventTypes: string[]
-  adaAccessible: boolean
   primaryWorksite: string
 }
 
@@ -45,7 +44,6 @@ export async function register(
   const domain = (formData.get('domain') as string)?.trim().toLowerCase()
   const rawPhone = (formData.get('phone') as string)?.trim()
   const eventTypes = formData.getAll('eventTypes') as string[]
-  const adaAccessible = formData.get('adaAccessible') === 'on'
   const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || ''
 
   const fields: RegisterFields = {
@@ -55,7 +53,6 @@ export async function register(
     workEmail,
     phone: rawPhone,
     eventTypes,
-    adaAccessible,
     primaryWorksite,
   }
 
@@ -136,7 +133,6 @@ export async function register(
     firstName,
     lastName,
     eventPreferences: JSON.stringify(eventTypes),
-    adaAccessible,
     primaryWorksite: primaryWorksite || null,
   })
 

@@ -38,7 +38,6 @@ export default async function OfferTicketPage({
       phone: users.phone,
       phoneVerified: users.phoneVerified,
       eventPreferences: users.eventPreferences,
-      adaAccessible: users.adaAccessible,
       primaryWorksite: users.primaryWorksite,
     })
     .from(users)

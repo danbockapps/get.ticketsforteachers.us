@@ -15,7 +15,6 @@ export default async function LoggedInView({
   const dbUser = rows[0]
   const preferences = {
     eventTypes: dbUser?.eventPreferences ? JSON.parse(dbUser.eventPreferences) : [],
-    adaAccessible: dbUser?.adaAccessible ?? false,
   }
 
   return (

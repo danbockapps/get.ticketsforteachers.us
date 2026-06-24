@@ -16,6 +16,7 @@ export default async function LoggedInView({
   const preferences = {
     eventTypes: dbUser?.eventPreferences ? JSON.parse(dbUser.eventPreferences) : [],
     contactMethod: dbUser?.contactMethod,
+    smsConsent: dbUser?.smsConsentAt != null,
   }
 
   return (

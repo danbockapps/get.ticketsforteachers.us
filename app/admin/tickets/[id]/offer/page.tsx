@@ -37,6 +37,7 @@ export default async function OfferTicketPage({
       emailVerified: users.emailVerified,
       phone: users.phone,
       phoneVerified: users.phoneVerified,
+      smsConsentAt: users.smsConsentAt,
       eventPreferences: users.eventPreferences,
       primaryWorksite: users.primaryWorksite,
     })

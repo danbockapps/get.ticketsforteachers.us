@@ -7,7 +7,7 @@ import PreferenceFields from './PreferenceFields'
 export default function PreferencesForm({
   preferences,
 }: {
-  preferences: {eventTypes: string[]; contactMethod?: string}
+  preferences: {eventTypes: string[]; contactMethod?: string; smsConsent?: boolean}
 }) {
   const [state, action, pending] = useActionState(savePreferences, null)
 

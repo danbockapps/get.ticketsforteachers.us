@@ -17,6 +17,7 @@ export const users = sqliteTable('users', {
   primaryWorksite: text('primary_worksite'),
   phone: text('phone').unique(),
   phoneVerified: integer('phone_verified', {mode: 'boolean'}).notNull().default(false),
+  smsConsentAt: text('sms_consent_at'), // ISO timestamp the user agreed to receive SMS/RCS; null = no consent
   createdAt: text('created_at')
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

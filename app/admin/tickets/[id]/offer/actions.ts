@@ -49,6 +49,7 @@ export async function sendOffer(
   } else {
     if (!recipient.phone) return fail('User has no phone number.')
     if (!recipient.phoneVerified) return fail('User’s phone is not verified.')
+    if (!recipient.smsConsentAt) return fail('User has not consented to SMS messages.')
   }
 
   const lastOffer = await db

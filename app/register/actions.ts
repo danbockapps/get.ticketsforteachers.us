@@ -31,6 +31,7 @@ type RegisterFields = {
   eventTypes: string[]
   primaryWorksite: string
   contactMethod: string
+  smsConsent: boolean
 }
 
 type RegisterState = {error: string; fields: RegisterFields; key: number} | null
@@ -48,6 +49,7 @@ export async function register(
   const eventTypes = formData.getAll('eventTypes') as string[]
   const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || ''
   const contactMethod = (formData.get('contactMethod') as string) || DEFAULT_CONTACT_METHOD
+  const smsConsent = formData.get('smsConsent') === 'on'
 
   const fields: RegisterFields = {
     firstName,
@@ -58,6 +60,7 @@ export async function register(
     eventTypes,
     primaryWorksite,
     contactMethod,
+    smsConsent,
   }
 
   function fail(error: string): RegisterState {
@@ -139,6 +142,7 @@ export async function register(
     eventPreferences: JSON.stringify(eventTypes),
     primaryWorksite: primaryWorksite || null,
     contactMethod,
+    smsConsentAt: smsConsent ? new Date().toISOString() : null,
   })
 
   const [personalToken, workToken] = await Promise.all([

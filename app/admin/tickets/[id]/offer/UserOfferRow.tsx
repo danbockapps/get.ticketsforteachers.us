@@ -9,6 +9,7 @@ export type OfferableUser = {
   emailVerified: boolean
   phone: string | null
   phoneVerified: boolean
+  smsConsentAt: string | null
   eventPreferences: string | null
   primaryWorksite: string | null
 }
@@ -53,6 +54,9 @@ export default function UserOfferRow({
     } else if (!user.phoneVerified) {
       disabled = true
       disabledReason = 'Phone not verified'
+    } else if (!user.smsConsentAt) {
+      disabled = true
+      disabledReason = 'No SMS consent'
     }
   }
   if (!disabled && withinCooldown) {

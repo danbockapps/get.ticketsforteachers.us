@@ -43,6 +43,7 @@
     "printWidth": 100,
     "bracketSpacing": false,
     "plugins": [
+      "prettier-plugin-organize-imports",
       "prettier-plugin-classnames"
     ]
   }

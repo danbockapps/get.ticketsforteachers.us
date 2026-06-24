@@ -1,13 +1,20 @@
 'use client'
 
 import Logo from '@/app/Logo'
-import {useActionState} from 'react'
+import {useActionState, useState} from 'react'
 import PreferenceFields from '../preferences/PreferenceFields'
+import {useContactPreferences} from '../preferences/useContactPreferences'
 import {register} from './actions'
 
 export default function RegisterForm({domain}: {domain: string}) {
   const [state, action, pending] = useActionState(register, null)
   const f = state?.fields
+  const [phone, setPhone] = useState(f?.phone ?? '')
+  const contact = useContactPreferences({
+    initialContactMethod: f?.contactMethod,
+    initialSmsConsent: f?.smsConsent,
+    hasPhone: phone.trim() !== '',
+  })
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
@@ -100,12 +107,20 @@ export default function RegisterForm({domain}: {domain: string}) {
                 name="phone"
                 type="tel"
                 autoComplete="tel"
-                defaultValue={f?.phone}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="input input-bordered w-full"
               />
             </div>
 
-            <PreferenceFields preferences={f} />
+            <PreferenceFields
+              preferences={f}
+              contactMethod={contact.contactMethod}
+              onContactMethodChange={contact.setContactMethod}
+              smsConsent={contact.smsConsent}
+              onSmsConsentChange={contact.setSmsConsent}
+              error={contact.error}
+            />
 
             {state?.error && (
               <div role="alert" className="alert alert-error">
@@ -113,7 +128,11 @@ export default function RegisterForm({domain}: {domain: string}) {
               </div>
             )}
 
-            <button type="submit" disabled={pending} className="btn btn-primary mt-2">
+            <button
+              type="submit"
+              disabled={pending || contact.error != null}
+              className="btn btn-primary mt-2"
+            >
               {pending ? <span className="loading loading-spinner loading-sm" /> : null}
               {pending ? 'Sending link…' : 'Create account'}
             </button>

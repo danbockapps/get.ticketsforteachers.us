@@ -8,19 +8,8 @@ import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
 import {logAction} from '@/lib/logger'
+import {emailInDomain, emailRegex, toE164} from '@/lib/contact'
 import {DEFAULT_CONTACT_METHOD} from '@/app/preferences/constants'
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-function normalizePhone(raw: string): string {
-  return raw.replace(/\D/g, '')
-}
-
-// True when the email's host is the domain itself or a subdomain of it.
-function emailInDomain(email: string, domain: string): boolean {
-  const host = email.slice(email.lastIndexOf('@') + 1)
-  return host === domain || host.endsWith(`.${domain}`)
-}
 
 type RegisterFields = {
   firstName: string
@@ -103,11 +92,10 @@ export async function register(
 
   let phone: string | null = null
   if (rawPhone) {
-    const digits = normalizePhone(rawPhone)
-    if (digits.length < 10) {
+    phone = toE164(rawPhone)
+    if (!phone) {
       return fail('Please enter a valid mobile phone number.')
     }
-    phone = digits.length === 10 ? `+1${digits}` : `+${digits}`
   }
 
   const existing = await db

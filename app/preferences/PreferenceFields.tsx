@@ -1,21 +1,23 @@
-import {CONTACT_METHODS, DEFAULT_CONTACT_METHOD, EVENT_TYPES} from './constants'
+'use client'
+
+import {CONTACT_METHODS, EVENT_TYPES} from './constants'
 
 export default function PreferenceFields({
   preferences = {},
+  contactMethod,
+  onContactMethodChange,
+  smsConsent,
+  onSmsConsentChange,
+  error,
 }: {
-  preferences?: {
-    eventTypes?: string[]
-    primaryWorksite?: string
-    contactMethod?: string
-    smsConsent?: boolean
-  }
+  preferences?: {eventTypes?: string[]; primaryWorksite?: string}
+  contactMethod: string
+  onContactMethodChange: (value: string) => void
+  smsConsent: boolean
+  onSmsConsentChange: (value: boolean) => void
+  error: string | null
 }) {
-  const {
-    eventTypes = [],
-    primaryWorksite = '',
-    contactMethod = DEFAULT_CONTACT_METHOD,
-    smsConsent = false,
-  } = preferences
+  const {eventTypes = [], primaryWorksite = ''} = preferences
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,7 +25,8 @@ export default function PreferenceFields({
         <input
           type="checkbox"
           name="smsConsent"
-          defaultChecked={smsConsent}
+          checked={smsConsent}
+          onChange={(e) => onSmsConsentChange(e.target.checked)}
           className="checkbox checkbox-primary mt-1"
         />
         <span className="text-sm">
@@ -60,13 +63,19 @@ export default function PreferenceFields({
                 type="radio"
                 name="contactMethod"
                 value={value}
-                defaultChecked={contactMethod === value}
+                checked={contactMethod === value}
+                onChange={(e) => onContactMethodChange(e.target.value)}
                 className="radio radio-primary"
               />
               <span>{label}</span>
             </label>
           ))}
         </div>
+        {error && (
+          <div role="alert" className="alert alert-warning">
+            <span>{error}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">

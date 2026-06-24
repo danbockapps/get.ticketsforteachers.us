@@ -1,7 +1,8 @@
 import Logo from '@/app/Logo'
 import {logout} from '@/app/logout/actions'
 import PreferencesForm from '@/app/preferences/PreferencesForm'
-import {resendPhoneVerification} from '@/app/preferences/actions'
+import PhoneField from '@/app/preferences/PhoneField'
+import WorkEmailField from '@/app/preferences/WorkEmailField'
 import {db} from '@/lib/db'
 import {users} from '@/lib/schema'
 import {eq} from 'drizzle-orm'
@@ -38,32 +39,16 @@ export default async function LoggedInView({
 
           <div className="divider my-0" />
 
-          <div className="flex flex-col gap-1">
-            <p className="text-base-content/50 text-xs font-medium uppercase tracking-wide">
-              Contact
-            </p>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm">{dbUser?.phone ?? '—'}</span>
-              {dbUser?.phoneVerified ? (
-                <span className="badge badge-success badge-sm">Verified</span>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="badge badge-warning badge-sm">Unverified</span>
-                  {dbUser?.phone && (
-                    <form action={resendPhoneVerification}>
-                      <button type="submit" className="btn btn-ghost btn-xs">
-                        Resend text
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <WorkEmailField
+            workEmail={dbUser?.workEmail ?? ''}
+            verified={dbUser?.workEmailVerified ?? false}
+          />
+
+          <PhoneField phone={dbUser?.phone ?? null} verified={dbUser?.phoneVerified ?? false} />
 
           <div className="divider my-0" />
 
-          <PreferencesForm preferences={preferences} />
+          <PreferencesForm preferences={preferences} hasPhone={dbUser?.phone != null} />
         </div>
       </div>
     </div>

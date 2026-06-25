@@ -30,41 +30,28 @@ export default function Icon() {
           height: 30,
           background: GOLD,
           border: `3px solid ${BLUE}`,
-          borderRadius: 7,
         }}
       >
         {/* Notches that give the ticket its shape */}
         <div
           style={{
             position: 'absolute',
-            left: -9,
-            top: 8,
-            width: 13,
-            height: 13,
-            borderRadius: 13,
+            left: -5,
+            top: 7,
+            width: 10,
+            height: 10,
+            borderRadius: 10,
             background: BLUE,
           }}
         />
         <div
           style={{
             position: 'absolute',
-            right: -9,
-            top: 8,
-            width: 13,
-            height: 13,
-            borderRadius: 13,
-            background: BLUE,
-          }}
-        />
-        {/* Perforation line */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 14,
-            top: 4,
-            width: 3,
-            height: 16,
-            borderRadius: 3,
+            right: -5,
+            top: 7,
+            width: 10,
+            height: 10,
+            borderRadius: 10,
             background: BLUE,
           }}
         />

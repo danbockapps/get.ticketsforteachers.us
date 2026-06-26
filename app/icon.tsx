@@ -4,7 +4,7 @@ import {ImageResponse} from 'next/og'
 export const size = {width: 64, height: 64}
 export const contentType = 'image/png'
 
-const BLUE = '#1B3D7D'
+const BLUE = process.env.NODE_ENV === 'production' ? '#1B3D7D' : '#84868a'
 const GOLD = '#EEC55B'
 
 export default function Icon() {
@@ -30,6 +30,7 @@ export default function Icon() {
           height: 30,
           background: GOLD,
           border: `3px solid ${BLUE}`,
+          transform: 'rotate(-15deg)',
         }}
       >
         {/* Notches that give the ticket its shape */}

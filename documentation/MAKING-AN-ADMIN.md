@@ -22,11 +22,11 @@ domain can have multiple admins. When a user has **any** row in `domain_admins`,
 ## Procedure (production)
 
 The database lives on the VPS at
-`/var/lib/tickets-for-teachers/database.db` (bind-mounted into the container at
+`/var/lib/get.ticketsforteachers.us/database.db` (bind-mounted into the container at
 `/app/data/database.db`). Run SQL against it with the `sqlite3` CLI:
 
 ```sh
-sqlite3 /var/lib/tickets-for-teachers/database.db
+sqlite3 /var/lib/get.ticketsforteachers.us/database.db
 ```
 
 ### 1. Look up the user's id

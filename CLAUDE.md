@@ -26,7 +26,7 @@ No test framework is configured.
 
 ## Deployment
 
-Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The SQLite database is persisted at `/var/lib/tickets-for-teachers` on the host.
+Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The SQLite database is persisted at `/var/lib/get.ticketsforteachers.us` on the host.
 
 ## Stack
 

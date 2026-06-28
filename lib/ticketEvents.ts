@@ -25,15 +25,15 @@ export type TicketEventVariant = {
 }[TicketEventType]
 
 type ActorAndTargetByType = {
-  created: {actorAdminId: string}
-  offered: {actorAdminId: string; targetUserId: string}
+  created: {actorDistributorId: string}
+  offered: {actorDistributorId: string; targetUserId: string}
   accepted: {actorUserId: string}
   declined: {actorUserId: string}
-  marked_sent: {actorAdminId: string}
-  status_changed: {actorAdminId: string; targetUserId?: string | null}
-  edited: {actorAdminId: string}
-  deleted: {actorAdminId: string}
-  restored: {actorAdminId: string}
+  marked_sent: {actorDistributorId: string}
+  status_changed: {actorDistributorId: string; targetUserId?: string | null}
+  edited: {actorDistributorId: string}
+  deleted: {actorDistributorId: string}
+  restored: {actorDistributorId: string}
 }
 
 type DetailsField<K extends TicketEventType> = EventDetailsByType[K] extends null
@@ -49,7 +49,7 @@ export async function logTicketEvent(input: LogEventInput): Promise<void> {
   const detailsObj = 'details' in input ? input.details : null
   await db.insert(ticketEvents).values({
     ticketId: input.ticketId,
-    actorAdminId: 'actorAdminId' in input ? input.actorAdminId : null,
+    actorDistributorId: 'actorDistributorId' in input ? input.actorDistributorId : null,
     actorUserId: 'actorUserId' in input ? input.actorUserId : null,
     targetUserId: 'targetUserId' in input ? (input.targetUserId ?? null) : null,
     eventType: input.eventType,

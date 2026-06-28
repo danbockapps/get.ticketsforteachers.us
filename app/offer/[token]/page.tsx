@@ -1,4 +1,4 @@
-import {formatEventAt} from '@/app/admin/format'
+import {formatEventAt} from '@/app/distributor/format'
 import AcceptButton from '@/app/offer/[token]/AcceptButton'
 import DeclineButton from '@/app/offer/[token]/DeclineButton'
 import {db} from '@/lib/db'

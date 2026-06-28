@@ -1,7 +1,7 @@
 import {Lucia} from 'lucia'
 import {BetterSqlite3Adapter} from '@lucia-auth/adapter-sqlite'
 import {db, sqlite} from './db'
-import {domainAdmins} from './schema'
+import {domainDistributors} from './schema'
 import {eq} from 'drizzle-orm'
 import {cookies} from 'next/headers'
 import {redirect} from 'next/navigation'
@@ -70,12 +70,12 @@ export async function requireAuth() {
   return user
 }
 
-export async function requireAdmin() {
+export async function requireDistributor() {
   const user = await requireAuth()
   const rows = await db
-    .select({domain: domainAdmins.domain})
-    .from(domainAdmins)
-    .where(eq(domainAdmins.userId, user.id))
+    .select({domain: domainDistributors.domain})
+    .from(domainDistributors)
+    .where(eq(domainDistributors.userId, user.id))
   if (rows.length === 0) redirect('/')
   return {user, domains: rows.map((r) => r.domain)}
 }

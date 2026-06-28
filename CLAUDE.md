@@ -43,7 +43,7 @@ Build and run the Docker container on the VPS using `scripts/docker-run.sh`. The
 
 ```
 app/            # Next.js App Router pages and layouts
-  AdminView.tsx       # Home page view for admin users
+  DistributorView.tsx # Home page view for distributor users
   LoggedInView.tsx    # Home page view for authenticated regular users
   LoggedOutView.tsx   # Home page view for unauthenticated users
   check-email/        # Post-registration/login "check your email" confirmation page
@@ -70,7 +70,7 @@ Lucia needs the raw `sqlite` instance (not the Drizzle `db`) for its adapter —
 
 `app/page.tsx` checks the user's state and renders one of three views:
 
-- **`AdminView`** — if the user has any row in the `domain_admins` bridge table (i.e. is an admin for at least one domain)
+- **`DistributorView`** — if the user has any row in the `domain_distributors` bridge table (i.e. is a distributor for at least one domain)
 - **`LoggedInView`** — regular authenticated user; shows phone verification status and preferences
 - **`LoggedOutView`** — unauthenticated; links to `/register` and `/login`
 

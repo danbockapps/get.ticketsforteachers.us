@@ -54,17 +54,17 @@ export const magicLinkTokens = sqliteTable(
 
 export const domains = sqliteTable('domains', {
   domain: text('domain').primaryKey(),
-  // DB-level default so raw SQL inserts (e.g. the admin-granting flow) get a
+  // DB-level default so raw SQL inserts (e.g. the distributor-granting flow) get a
   // timestamp without specifying one. Format matches `new Date().toISOString()`.
   createdAt: text('created_at')
     .notNull()
     .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 })
 
-// Bridge table: one row = "this user is an admin for this domain".
-// A user can administer many domains; a domain can have many admins.
-export const domainAdmins = sqliteTable(
-  'domain_admins',
+// Bridge table: one row = "this user is a distributor for this domain".
+// A user can distribute for many domains; a domain can have many distributors.
+export const domainDistributors = sqliteTable(
+  'domain_distributors',
   {
     domain: text('domain')
       .notNull()
@@ -75,7 +75,7 @@ export const domainAdmins = sqliteTable(
   },
   (table) => ({
     pk: primaryKey({columns: [table.domain, table.userId]}),
-    userIdIdx: index('idx_domain_admins_user_id').on(table.userId),
+    userIdIdx: index('idx_domain_distributors_user_id').on(table.userId),
   }),
 )
 
@@ -98,7 +98,7 @@ export const tickets = sqliteTable(
     status: text('status').$type<TicketStatus>().notNull().default('unclaimed'),
     claimedByUserId: text('claimed_by_user_id').references(() => users.id, {onDelete: 'set null'}),
     claimedAt: text('claimed_at'),
-    createdByAdminId: text('created_by_admin_id')
+    createdByDistributorId: text('created_by_distributor_id')
       .notNull()
       .references(() => users.id, {onDelete: 'restrict'}),
     createdAt: text('created_at')
@@ -147,7 +147,7 @@ export const ticketEvents = sqliteTable(
       .notNull()
       .references(() => tickets.id, {onDelete: 'cascade'}),
     actorUserId: text('actor_user_id').references(() => users.id, {onDelete: 'set null'}),
-    actorAdminId: text('actor_admin_id').references(() => users.id, {onDelete: 'set null'}),
+    actorDistributorId: text('actor_distributor_id').references(() => users.id, {onDelete: 'set null'}),
     eventType: text('event_type').notNull(), // 'created' | 'offered' | 'accepted' | 'declined' | 'marked_sent' | 'status_changed' | 'edited' | 'deleted' | 'restored'
     targetUserId: text('target_user_id').references(() => users.id, {onDelete: 'set null'}),
     details: text('details'), // JSON
@@ -164,7 +164,7 @@ export type User = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type Session = typeof sessions.$inferSelect
 export type Domain = typeof domains.$inferSelect
-export type DomainAdmin = typeof domainAdmins.$inferSelect
+export type DomainDistributor = typeof domainDistributors.$inferSelect
 export type Ticket = typeof tickets.$inferSelect
 export type InsertTicket = typeof tickets.$inferInsert
 export type TicketOffer = typeof ticketOffers.$inferSelect

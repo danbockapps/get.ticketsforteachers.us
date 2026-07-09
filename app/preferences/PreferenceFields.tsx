@@ -1,6 +1,6 @@
 'use client'
 
-import {CONTACT_METHODS, EVENT_TYPES} from './constants'
+import { CONTACT_METHODS, EVENT_TYPES } from './constants';
 
 export default function PreferenceFields({
   preferences = {},
@@ -52,7 +52,11 @@ export default function PreferenceFields({
         </label>
         <p className="text-sm">
           Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe and
-          HELP for help.
+          HELP for help. View our{' '}<a
+            href="https://ticketsforteachers.org/PrivacyPolicy.html"
+            target="_blank" className='font-medium text-fg-brand underline'>Privacy Policy</a> and{' '}
+          <a href="https://ticketsforteachers.org/TermsAndConditions.html"
+            target="_blank" className='font-medium text-fg-brand underline'>Terms and Conditions</a>.
         </p>
       </div>
 

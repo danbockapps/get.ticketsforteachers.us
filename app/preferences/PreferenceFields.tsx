@@ -53,9 +53,9 @@ export default function PreferenceFields({
         <p className="text-sm">
           Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe and
           HELP for help. View our{' '}<a
-            href="https://ticketsforteachers.org/PrivacyPolicy.html"
+            href="https://ticketsforteachers.us/PrivacyPolicy.html"
             target="_blank" className='font-medium text-fg-brand underline'>Privacy Policy</a> and{' '}
-          <a href="https://ticketsforteachers.org/TermsAndConditions.html"
+          <a href="https://ticketsforteachers.us/TermsAndConditions.html"
             target="_blank" className='font-medium text-fg-brand underline'>Terms and Conditions</a>.
         </p>
       </div>

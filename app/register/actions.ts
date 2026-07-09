@@ -38,7 +38,8 @@ export async function register(
   const eventTypes = formData.getAll('eventTypes') as string[]
   const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || ''
   const contactMethod = (formData.get('contactMethod') as string) || DEFAULT_CONTACT_METHOD
-  const smsConsent = formData.get('smsConsent') === 'on'
+  const smsConsent =
+    formData.get('notificationsConsent') === 'on' && formData.get('offersConsent') === 'on'
 
   const fields: RegisterFields = {
     firstName,

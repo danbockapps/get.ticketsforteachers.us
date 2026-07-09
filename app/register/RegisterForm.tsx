@@ -117,8 +117,10 @@ export default function RegisterForm({domain}: {domain: string}) {
               preferences={f}
               contactMethod={contact.contactMethod}
               onContactMethodChange={contact.setContactMethod}
-              smsConsent={contact.smsConsent}
-              onSmsConsentChange={contact.setSmsConsent}
+              notificationsConsent={contact.notificationsConsent}
+              onNotificationsConsentChange={contact.setNotificationsConsent}
+              offersConsent={contact.offersConsent}
+              onOffersConsentChange={contact.setOffersConsent}
               error={contact.error}
             />
 

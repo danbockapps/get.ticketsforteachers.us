@@ -27,7 +27,8 @@ export async function savePreferences(_prevState: unknown, formData: FormData) {
   const selected = formData.getAll('eventTypes') as string[]
   const primaryWorksite = (formData.get('primaryWorksite') as string)?.trim() || null
   const contactMethod = (formData.get('contactMethod') as string) || DEFAULT_CONTACT_METHOD
-  const smsConsent = formData.get('smsConsent') === 'on'
+  const smsConsent =
+    formData.get('notificationsConsent') === 'on' && formData.get('offersConsent') === 'on'
 
   // Record the moment consent flips from false → true; clear it if withdrawn.
   // Preserve the original timestamp while consent stays granted.

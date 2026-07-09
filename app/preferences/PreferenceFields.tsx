@@ -6,35 +6,55 @@ export default function PreferenceFields({
   preferences = {},
   contactMethod,
   onContactMethodChange,
-  smsConsent,
-  onSmsConsentChange,
+  notificationsConsent,
+  onNotificationsConsentChange,
+  offersConsent,
+  onOffersConsentChange,
   error,
 }: {
   preferences?: {eventTypes?: string[]; primaryWorksite?: string}
   contactMethod: string
   onContactMethodChange: (value: string) => void
-  smsConsent: boolean
-  onSmsConsentChange: (value: boolean) => void
+  notificationsConsent: boolean
+  onNotificationsConsentChange: (value: boolean) => void
+  offersConsent: boolean
+  onOffersConsentChange: (value: boolean) => void
   error: string | null
 }) {
   const {eventTypes = [], primaryWorksite = ''} = preferences
 
   return (
     <div className="flex flex-col gap-6">
-      <label className="flex cursor-pointer items-start gap-3">
-        <input
-          type="checkbox"
-          name="smsConsent"
-          checked={smsConsent}
-          onChange={(e) => onSmsConsentChange(e.target.checked)}
-          className="checkbox checkbox-primary mt-1"
-        />
-        <span className="text-sm">
-          I agree to receive SMS and RCS messages from Tickets for Teachers about ticket offers and
-          account notifications. Message frequency varies. Message and data rates may apply. Reply
-          STOP to unsubscribe and HELP for help.
-        </span>
-      </label>
+      <div className="flex flex-col gap-3">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            name="notificationsConsent"
+            checked={notificationsConsent}
+            onChange={(e) => onNotificationsConsentChange(e.target.checked)}
+            className="checkbox checkbox-primary mt-1"
+          />
+          <span className="text-sm">
+            I agree to receive account updates and notifications from Tickets for Teachers.
+          </span>
+        </label>
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            name="offersConsent"
+            checked={offersConsent}
+            onChange={(e) => onOffersConsentChange(e.target.checked)}
+            className="checkbox checkbox-primary mt-1"
+          />
+          <span className="text-sm">
+            I agree to receive ticket offers from Tickets for Teachers.
+          </span>
+        </label>
+        <p className="text-sm">
+          Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe and
+          HELP for help.
+        </p>
+      </div>
 
       <div className="flex flex-col gap-3">
         <h2 className="font-semibold">What types of events would you like to attend?</h2>

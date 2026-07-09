@@ -16,8 +16,20 @@ export function useContactPreferences({
   hasPhone: boolean
 }) {
   const [contactMethod, setContactMethod] = useState(initialContactMethod)
-  const [smsConsent, setSmsConsent] = useState(initialSmsConsent)
+  const [notificationsConsent, setNotificationsConsent] = useState(initialSmsConsent)
+  const [offersConsent, setOffersConsent] = useState(initialSmsConsent)
+  // SMS-based contact requires consent to both message categories.
+  const smsConsent = notificationsConsent && offersConsent
   const error = smsContactError({contactMethod, smsConsent, hasPhone})
 
-  return {contactMethod, setContactMethod, smsConsent, setSmsConsent, error}
+  return {
+    contactMethod,
+    setContactMethod,
+    notificationsConsent,
+    setNotificationsConsent,
+    offersConsent,
+    setOffersConsent,
+    smsConsent,
+    error,
+  }
 }

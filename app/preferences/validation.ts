@@ -15,13 +15,13 @@ export function smsContactError({
   if (!wantsSms) return null
 
   if (!hasPhone && !smsConsent) {
-    return 'To be contacted by text, add a mobile phone number and check the SMS consent box above.'
+    return 'To be contacted by text, add a mobile phone number and check both SMS consent boxes above.'
   }
   if (!hasPhone) {
     return 'To be contacted by text, add a mobile phone number.'
   }
   if (!smsConsent) {
-    return 'To be contacted by text, check the SMS consent box above.'
+    return 'To be contacted by text, check both SMS consent boxes above.'
   }
   return null
 }

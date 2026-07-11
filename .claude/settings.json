@@ -11,5 +11,8 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "twilio-developer-kit@twilio": true
   }
 }

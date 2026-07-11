@@ -24,6 +24,7 @@ function formatEventAt(iso: string) {
 
 export async function sendOfferSms(user: User, ticket: Ticket, token: string) {
   if (!user.phone) throw new Error('User has no phone number')
+  if (!user.smsConsentAt) throw new Error('User has not consented to SMS messages')
   const link = offerUrl(token)
   const when = formatEventAt(ticket.eventAt)
   await twilioClient.messages.create({

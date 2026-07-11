@@ -134,16 +134,10 @@ The entrypoint runs Drizzle migrations against the SQLite file before starting t
 > The next container start recreates the schema from scratch. Skip this once the
 > migrations have been applied — it's only needed for the deploy that first includes them.
 
-For every code change after the initial setup:
+For every code change after the initial setup, run `scripts/deploy.sh`. It runs the full flow — pull, build, stop, remove, and start (via `scripts/docker-run.sh`):
 
 ```
-cd ~/projects/get.ticketsforteachers.us
-git pull
-docker build -t get.ticketsforteachers.us .
-docker stop get.ticketsforteachers.us
-docker rm get.ticketsforteachers.us
-./scripts/docker-run.sh
-journalctl CONTAINER_NAME=get.ticketsforteachers.us
+~/projects/get.ticketsforteachers.us/scripts/deploy.sh
 ```
 
 Migrations run automatically on container start (`docker-entrypoint.sh` → `migrate.mjs`).

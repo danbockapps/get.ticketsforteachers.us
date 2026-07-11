@@ -1,0 +1,1 @@
+ALTER TABLE `domains` ADD `time_zone` text;

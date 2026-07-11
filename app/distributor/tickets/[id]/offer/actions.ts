@@ -5,6 +5,7 @@ import {requireDistributor} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
 import {ticketOffers, tickets, users} from '@/lib/schema'
+import {checkOfferSmsWindow} from '@/lib/quietHours'
 import {logTicketEvent} from '@/lib/ticketEvents'
 import {logAction} from '@/lib/logger'
 import {generateSecret} from '@/lib/tokens'
@@ -50,6 +51,16 @@ export async function sendOffer(
     if (!recipient.phone) return fail('User has no phone number.')
     if (!recipient.phoneVerified) return fail('User’s phone is not verified.')
     if (!recipient.smsConsentAt) return fail('User has not consented to SMS messages.')
+
+    // Friendly pre-check for TCPA quiet hours; sendOfferSms enforces the backstop.
+    const window = await checkOfferSmsWindow(ticket.domain)
+    if (!window.ok) {
+      return fail(
+        window.reason === 'no_timezone'
+          ? 'No time zone is set for this district, so SMS can’t be sent.'
+          : 'It’s outside texting hours (8am–9pm) for this district. Try again later.',
+      )
+    }
   }
 
   const lastOffer = await db

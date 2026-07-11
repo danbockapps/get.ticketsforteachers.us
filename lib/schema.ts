@@ -54,6 +54,9 @@ export const magicLinkTokens = sqliteTable(
 
 export const domains = sqliteTable('domains', {
   domain: text('domain').primaryKey(),
+  // IANA time zone for the district (e.g. 'America/New_York'). Used to enforce TCPA
+  // quiet hours (8am–9pm local) on outbound SMS. null = unknown; sends are blocked.
+  timeZone: text('time_zone'),
   // DB-level default so raw SQL inserts (e.g. the distributor-granting flow) get a
   // timestamp without specifying one. Format matches `new Date().toISOString()`.
   createdAt: text('created_at')

@@ -42,7 +42,18 @@ IGNORE` is safe to run even if it already exists; `created_at` is filled in
 automatically by a column default:
 
 ```sql
-INSERT OR IGNORE INTO domains (domain) VALUES ('springfield.edu');
+INSERT OR IGNORE INTO domains (domain, time_zone) VALUES ('springfield.edu', 'America/New_York');
+```
+
+**Always set `time_zone`** (an IANA identifier, e.g. `America/New_York`). It
+represents where the district is located and is used to enforce TCPA SMS quiet
+hours — offer texts are only sent between 8am–9pm in this zone. **A domain with a
+null `time_zone` cannot send any offer SMS** (sends are blocked as a safety
+default). `INSERT OR IGNORE` will not update an existing row, so if the domain
+already exists, set its zone explicitly:
+
+```sql
+UPDATE domains SET time_zone = 'America/New_York' WHERE domain = 'springfield.edu';
 ```
 
 ### 3. Grant distributor access for the domain
@@ -57,7 +68,7 @@ VALUES ('springfield.edu', '<the-user-id-from-step-1>');
 For multiple domains, run step 2 for each domain, then insert one row per domain:
 
 ```sql
-INSERT OR IGNORE INTO domains (domain) VALUES ('shelbyville.edu');
+INSERT OR IGNORE INTO domains (domain, time_zone) VALUES ('shelbyville.edu', 'America/New_York');
 
 INSERT INTO domain_distributors (domain, user_id) VALUES
   ('springfield.edu', '<the-user-id>'),
@@ -92,6 +103,19 @@ insert the ones you do.
 > Removing a `domains` row is restricted while any ticket still references that
 > domain (`tickets.domain` has a foreign key with `ON DELETE restrict`).
 > Deleting a `domains` row cascades to its `domain_distributors` rows.
+
+## Backfilling time zones for existing domains
+
+The `time_zone` column was added after domains already existed, so those rows
+have a null zone and cannot send offer SMS until it's set. All current districts
+are in the New York time zone, so this one-time statement fills them in:
+
+```sql
+UPDATE domains SET time_zone = 'America/New_York' WHERE time_zone IS NULL;
+```
+
+As districts in other time zones are added, set their `time_zone` individually
+(step 2) rather than relying on this blanket update.
 
 ## Doing it locally instead
 

@@ -1,8 +1,8 @@
 import {Resend} from 'resend'
 import twilio from 'twilio'
-import type {Ticket, User} from './schema'
-import {checkOfferSmsWindow} from './quietHours'
 import {hasSmsConsent} from './consent'
+import {checkOfferSmsWindow} from './quietHours'
+import type {Ticket, User} from './schema'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
@@ -36,7 +36,7 @@ export async function sendOfferSms(user: User, ticket: Ticket, token: string) {
   const link = offerUrl(token)
   const when = formatEventAt(ticket.eventAt)
   await twilioClient.messages.create({
-    body: `Ticket available — ${ticket.description}, ${when}, ${ticket.location}. First to accept gets it: ${link}`,
+    body: `🎟️ Tickets for Teachers alert! Ticket available — ${ticket.description}, ${when}, ${ticket.location}. First to accept gets it: ${link}`,
     messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID,
     to: user.phone,
   })

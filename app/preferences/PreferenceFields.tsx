@@ -35,7 +35,7 @@ export default function PreferenceFields({
             className="checkbox checkbox-primary mt-1"
           />
           <span className="text-sm">
-            I agree to receive account updates and notifications from Tickets for Teachers.
+            I agree to receive SMS/RCS account updates and notifications from Tickets for Teachers.
           </span>
         </label>
         <label className="flex cursor-pointer items-start gap-3">
@@ -47,7 +47,7 @@ export default function PreferenceFields({
             className="checkbox checkbox-primary mt-1"
           />
           <span className="text-sm">
-            I agree to receive ticket offers from Tickets for Teachers.
+            I agree to receive SMS/RCS ticket offers from Tickets for Teachers.
           </span>
         </label>
         <p className="text-sm">

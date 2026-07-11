@@ -7,8 +7,10 @@ import {domains, users} from '@/lib/schema'
 import {createMagicLinkToken, generateId} from '@/lib/tokens'
 import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
-import {logAction} from '@/lib/logger'
+import {ipFromHeaders, logAction} from '@/lib/logger'
+import {recordConsentEvent} from '@/lib/consent'
 import {emailInDomain, emailRegex, toE164} from '@/lib/contact'
+import {headers} from 'next/headers'
 import {DEFAULT_CONTACT_METHOD} from '@/app/preferences/constants'
 
 type RegisterFields = {
@@ -131,8 +133,17 @@ export async function register(
     eventPreferences: JSON.stringify(eventTypes),
     primaryWorksite: primaryWorksite || null,
     contactMethod,
-    smsConsentAt: smsConsent ? new Date().toISOString() : null,
   })
+
+  if (smsConsent) {
+    await recordConsentEvent({
+      userId: id,
+      event: 'grant',
+      source: 'register',
+      method: 'web_form',
+      ipAddress: ipFromHeaders(await headers()),
+    })
+  }
 
   const [personalToken, workToken] = await Promise.all([
     createMagicLinkToken(id, 'personal'),

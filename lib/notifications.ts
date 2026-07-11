@@ -2,6 +2,7 @@ import {Resend} from 'resend'
 import twilio from 'twilio'
 import type {Ticket, User} from './schema'
 import {checkOfferSmsWindow} from './quietHours'
+import {hasSmsConsent} from './consent'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
@@ -25,7 +26,7 @@ function formatEventAt(iso: string) {
 
 export async function sendOfferSms(user: User, ticket: Ticket, token: string) {
   if (!user.phone) throw new Error('User has no phone number')
-  if (!user.smsConsentAt) throw new Error('User has not consented to SMS messages')
+  if (!(await hasSmsConsent(user.id))) throw new Error('User has not consented to SMS messages')
 
   // TCPA quiet hours backstop: only send between 8am–9pm in the recipient's
   // local time (the district's zone). Block when the zone is unknown.

@@ -6,6 +6,7 @@ import {db} from '@/lib/db'
 import {sendOfferEmail, sendOfferSms} from '@/lib/notifications'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {checkOfferSmsWindow} from '@/lib/quietHours'
+import {hasSmsConsent} from '@/lib/consent'
 import {logTicketEvent} from '@/lib/ticketEvents'
 import {logAction} from '@/lib/logger'
 import {generateSecret} from '@/lib/tokens'
@@ -50,7 +51,7 @@ export async function sendOffer(
   } else {
     if (!recipient.phone) return fail('User has no phone number.')
     if (!recipient.phoneVerified) return fail('User’s phone is not verified.')
-    if (!recipient.smsConsentAt) return fail('User has not consented to SMS messages.')
+    if (!(await hasSmsConsent(recipient.id))) return fail('User has not consented to SMS messages.')
 
     // Friendly pre-check for TCPA quiet hours; sendOfferSms enforces the backstop.
     const window = await checkOfferSmsWindow(ticket.domain)

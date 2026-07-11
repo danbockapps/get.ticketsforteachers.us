@@ -9,7 +9,9 @@ import {createMagicLinkToken} from '@/lib/tokens'
 import {sendPhoneVerification} from '@/lib/sms'
 import {sendWorkEmailVerification} from '@/lib/email'
 import {emailHost, emailInDomain, emailRegex, toE164} from '@/lib/contact'
-import {logAction} from '@/lib/logger'
+import {ipFromHeaders, logAction} from '@/lib/logger'
+import {hasSmsConsent, recordConsentEvent} from '@/lib/consent'
+import {headers} from 'next/headers'
 import {DEFAULT_CONTACT_METHOD} from './constants'
 
 export type ContactFieldState = {
@@ -30,16 +32,23 @@ export async function savePreferences(_prevState: unknown, formData: FormData) {
   const smsConsent =
     formData.get('notificationsConsent') === 'on' && formData.get('offersConsent') === 'on'
 
-  // Record the moment consent flips from false → true; clear it if withdrawn.
-  // Preserve the original timestamp while consent stays granted.
-  const rows = await db.select().from(users).where(eq(users.id, user.id))
-  const existingConsentAt = rows[0]?.smsConsentAt ?? null
-  const smsConsentAt = smsConsent ? (existingConsentAt ?? new Date().toISOString()) : null
-
   await db
     .update(users)
-    .set({eventPreferences: JSON.stringify(selected), primaryWorksite, contactMethod, smsConsentAt})
+    .set({eventPreferences: JSON.stringify(selected), primaryWorksite, contactMethod})
     .where(eq(users.id, user.id))
+
+  // Append a consent event only when the state actually flips, so the log stays
+  // an accurate history of transitions rather than a row per save.
+  const currentlyConsented = await hasSmsConsent(user.id)
+  if (smsConsent !== currentlyConsented) {
+    await recordConsentEvent({
+      userId: user.id,
+      event: smsConsent ? 'grant' : 'revoke',
+      source: 'preferences',
+      method: 'web_form',
+      ipAddress: ipFromHeaders(await headers()),
+    })
+  }
 
   await logAction('saved preferences', user)
 

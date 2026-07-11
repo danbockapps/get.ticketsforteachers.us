@@ -7,6 +7,7 @@ import {formatEventAt} from '@/app/distributor/format'
 import {requireDistributor} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {ticketOffers, tickets, users} from '@/lib/schema'
+import {smsConsentUserIds} from '@/lib/consent'
 import {and, desc, eq, like} from 'drizzle-orm'
 
 export default async function OfferTicketPage({
@@ -37,12 +38,14 @@ export default async function OfferTicketPage({
       emailVerified: users.emailVerified,
       phone: users.phone,
       phoneVerified: users.phoneVerified,
-      smsConsentAt: users.smsConsentAt,
       eventPreferences: users.eventPreferences,
       primaryWorksite: users.primaryWorksite,
     })
     .from(users)
     .where(and(like(users.workEmail, `%@${ticket.domain}`), eq(users.workEmailVerified, true)))
+
+  // Resolve current SMS consent for the whole recipient list in one query.
+  const consentedUserIds = await smsConsentUserIds(offerableUsers.map((u) => u.id))
 
   const allOffers = await db
     .select({userId: ticketOffers.userId, sentAt: ticketOffers.sentAt})
@@ -115,7 +118,7 @@ export default async function OfferTicketPage({
                 <UserOfferRow
                   key={u.id}
                   ticketId={ticket.id}
-                  user={u}
+                  user={{...u, smsConsent: consentedUserIds.has(u.id)}}
                   method={method}
                   lastOfferAt={lastOfferByUser.get(u.id) ?? null}
                   withinCooldown={cooldownByUser.get(u.id) ?? false}

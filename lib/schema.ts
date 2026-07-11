@@ -17,7 +17,6 @@ export const users = sqliteTable('users', {
   primaryWorksite: text('primary_worksite'),
   phone: text('phone').unique(),
   phoneVerified: integer('phone_verified', {mode: 'boolean'}).notNull().default(false),
-  smsConsentAt: text('sms_consent_at'), // ISO timestamp the user agreed to receive SMS/RCS; null = no consent
   createdAt: text('created_at')
     .notNull()
     .$defaultFn(() => new Date().toISOString()),
@@ -63,6 +62,31 @@ export const domains = sqliteTable('domains', {
     .notNull()
     .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
 })
+
+// Append-only audit trail of SMS consent grants and revocations. This is the
+// single source of truth for whether a user may receive SMS/RCS — current
+// consent = the user's most recent event is a 'grant'. Never updated in place,
+// so the record survives opt-out/opt-in cycles (needed for TCPA defense).
+export const consentEvents = sqliteTable(
+  'consent_events',
+  {
+    id: integer('id').primaryKey({autoIncrement: true}),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, {onDelete: 'cascade'}),
+    event: text('event').notNull(), // 'grant' | 'revoke'
+    channel: text('channel').notNull().default('sms'), // 'sms' | 'rcs'
+    source: text('source').notNull(), // 'register' | 'preferences' | 'sms_keyword'
+    method: text('method').notNull(), // 'web_form' | 'sms_keyword'
+    ipAddress: text('ip_address'), // client IP for web consent; null for sms_keyword
+    createdAt: text('created_at')
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => ({
+    userIdIdx: index('idx_consent_events_user_id').on(table.userId),
+  }),
+)
 
 // Bridge table: one row = "this user is a distributor for this domain".
 // A user can distribute for many domains; a domain can have many distributors.

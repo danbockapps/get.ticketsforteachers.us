@@ -5,6 +5,7 @@ import PhoneField from '@/app/preferences/PhoneField'
 import WorkEmailField from '@/app/preferences/WorkEmailField'
 import {db} from '@/lib/db'
 import {users} from '@/lib/schema'
+import {hasSmsConsent} from '@/lib/consent'
 import {eq} from 'drizzle-orm'
 
 export default async function LoggedInView({
@@ -17,7 +18,7 @@ export default async function LoggedInView({
   const preferences = {
     eventTypes: dbUser?.eventPreferences ? JSON.parse(dbUser.eventPreferences) : [],
     contactMethod: dbUser?.contactMethod,
-    smsConsent: dbUser?.smsConsentAt != null,
+    smsConsent: dbUser ? await hasSmsConsent(dbUser.id) : false,
   }
 
   return (

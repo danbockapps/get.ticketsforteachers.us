@@ -127,6 +127,13 @@
       "when": 1783772231792,
       "tag": "0017_lucky_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1783774288936,
+      "tag": "0018_keen_the_twelve",
+      "breakpoints": true
     }
   ]
 }

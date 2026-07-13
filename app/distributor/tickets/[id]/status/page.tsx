@@ -5,7 +5,7 @@ import {formatEventAt} from '@/app/distributor/format'
 import {requireDistributor} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {tickets, users} from '@/lib/schema'
-import {and, eq, like} from 'drizzle-orm'
+import {and, eq} from 'drizzle-orm'
 
 export default async function ChangeStatusPage({params}: {params: Promise<{id: string}>}) {
   const {id: idParam} = await params
@@ -26,7 +26,7 @@ export default async function ChangeStatusPage({params}: {params: Promise<{id: s
       email: users.email,
     })
     .from(users)
-    .where(and(like(users.workEmail, `%@${ticket.domain}`), eq(users.workEmailVerified, true)))
+    .where(and(eq(users.domain, ticket.domain), eq(users.workEmailVerified, true)))
     .orderBy(users.lastName, users.firstName)
 
   return (

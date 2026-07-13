@@ -9,7 +9,7 @@ import {eq, or} from 'drizzle-orm'
 import {redirect} from 'next/navigation'
 import {ipFromHeaders, logAction} from '@/lib/logger'
 import {recordConsentEvent} from '@/lib/consent'
-import {emailInDomain, emailRegex, toE164} from '@/lib/contact'
+import {emailHost, emailInDomain, emailRegex, toE164} from '@/lib/contact'
 import {headers} from 'next/headers'
 import {DEFAULT_CONTACT_METHOD} from '@/app/preferences/constants'
 
@@ -127,6 +127,7 @@ export async function register(
     id,
     email,
     workEmail,
+    domain: emailHost(workEmail),
     phone,
     firstName,
     lastName,

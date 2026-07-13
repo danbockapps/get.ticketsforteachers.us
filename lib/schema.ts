@@ -3,24 +3,35 @@ import {index, integer, primaryKey, real, sqliteTable, text} from 'drizzle-orm/s
 
 export type TicketStatus = 'unclaimed' | 'claimed' | 'sent'
 
-export const users = sqliteTable('users', {
-  id: text('id').primaryKey(),
-  email: text('email').notNull().unique(), // personal email, used for login
-  emailVerified: integer('email_verified', {mode: 'boolean'}).notNull().default(false),
-  workEmail: text('work_email').notNull().unique(),
-  workEmailVerified: integer('work_email_verified', {mode: 'boolean'}).notNull().default(false),
-  firstName: text('first_name').notNull(),
-  lastName: text('last_name').notNull(),
-  eventPreferences: text('event_preferences'), // JSON array of strings
-  contactMethod: text('contact_method').notNull().default('email'), // 'email' | 'sms' | 'sms_same_day'
-  adaAccessible: integer('ada_accessible', {mode: 'boolean'}).notNull().default(false),
-  primaryWorksite: text('primary_worksite'),
-  phone: text('phone').unique(),
-  phoneVerified: integer('phone_verified', {mode: 'boolean'}).notNull().default(false),
-  createdAt: text('created_at')
-    .notNull()
-    .$defaultFn(() => new Date().toISOString()),
-})
+export const users = sqliteTable(
+  'users',
+  {
+    id: text('id').primaryKey(),
+    email: text('email').notNull().unique(), // personal email, used for login
+    emailVerified: integer('email_verified', {mode: 'boolean'}).notNull().default(false),
+    workEmail: text('work_email').notNull().unique(),
+    // Host portion of workEmail (e.g. 'springfield.edu'), kept in sync on every
+    // workEmail write. Denormalized so we can index it and find a domain's users
+    // with an equality lookup — a `LIKE '%@domain'` on work_email can't use an
+    // index (leading wildcard) and forces a full table scan.
+    domain: text('domain').notNull().default(''),
+    workEmailVerified: integer('work_email_verified', {mode: 'boolean'}).notNull().default(false),
+    firstName: text('first_name').notNull(),
+    lastName: text('last_name').notNull(),
+    eventPreferences: text('event_preferences'), // JSON array of strings
+    contactMethod: text('contact_method').notNull().default('email'), // 'email' | 'sms' | 'sms_same_day'
+    adaAccessible: integer('ada_accessible', {mode: 'boolean'}).notNull().default(false),
+    primaryWorksite: text('primary_worksite'),
+    phone: text('phone').unique(),
+    phoneVerified: integer('phone_verified', {mode: 'boolean'}).notNull().default(false),
+    createdAt: text('created_at')
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => ({
+    domainIdx: index('idx_users_domain').on(table.domain),
+  }),
+)
 
 export const sessions = sqliteTable(
   'sessions',
@@ -174,7 +185,9 @@ export const ticketEvents = sqliteTable(
       .notNull()
       .references(() => tickets.id, {onDelete: 'cascade'}),
     actorUserId: text('actor_user_id').references(() => users.id, {onDelete: 'set null'}),
-    actorDistributorId: text('actor_distributor_id').references(() => users.id, {onDelete: 'set null'}),
+    actorDistributorId: text('actor_distributor_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     eventType: text('event_type').notNull(), // 'created' | 'offered' | 'accepted' | 'declined' | 'marked_sent' | 'status_changed' | 'edited' | 'deleted' | 'restored'
     targetUserId: text('target_user_id').references(() => users.id, {onDelete: 'set null'}),
     details: text('details'), // JSON

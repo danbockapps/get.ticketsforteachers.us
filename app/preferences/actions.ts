@@ -134,7 +134,7 @@ export async function updateWorkEmail(
 
   await db
     .update(users)
-    .set({workEmail, workEmailVerified: false})
+    .set({workEmail, domain, workEmailVerified: false})
     .where(eq(users.id, user.id))
 
   const token = await createMagicLinkToken(user.id, 'work')

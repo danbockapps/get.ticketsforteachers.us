@@ -8,7 +8,7 @@ import {requireDistributor} from '@/lib/auth'
 import {db} from '@/lib/db'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {smsConsentUserIds} from '@/lib/consent'
-import {and, desc, eq, like} from 'drizzle-orm'
+import {and, desc, eq} from 'drizzle-orm'
 
 export default async function OfferTicketPage({
   params,
@@ -42,7 +42,7 @@ export default async function OfferTicketPage({
       primaryWorksite: users.primaryWorksite,
     })
     .from(users)
-    .where(and(like(users.workEmail, `%@${ticket.domain}`), eq(users.workEmailVerified, true)))
+    .where(and(eq(users.domain, ticket.domain), eq(users.workEmailVerified, true)))
 
   // Resolve current SMS consent for the whole recipient list in one query.
   const consentedUserIds = await smsConsentUserIds(offerableUsers.map((u) => u.id))

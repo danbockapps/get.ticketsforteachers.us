@@ -38,6 +38,10 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
+  "resolutions": {
+    "postcss": "^8.5.22",
+    "sharp": "^0.35.3"
+  },
   "prettier": {
     "semi": false,
     "singleQuote": true,

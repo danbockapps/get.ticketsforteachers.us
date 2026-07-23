@@ -1,5 +1,5 @@
 import SendOfferButton from '@/app/distributor/tickets/[id]/offer/SendOfferButton'
-import type {OfferMethod} from '@/app/distributor/tickets/[id]/offer/actions'
+import type {OfferMethod} from '@/lib/offerMethod'
 
 export type OfferableUser = {
   id: string
@@ -39,6 +39,7 @@ export default function UserOfferRow({
 }) {
   const eventTypes: string[] = user.eventPreferences ? JSON.parse(user.eventPreferences) : []
   const contact = method === 'email' ? user.email : (user.phone ?? 'No phone on file')
+  const methodLabel = method === 'email' ? 'Email' : 'Text'
 
   let disabled = false
   let disabledReason: string | null = null
@@ -66,14 +67,16 @@ export default function UserOfferRow({
 
   return (
     <li
-      className="border-base-300 flex flex-col gap-3 border-b py-4 last:border-b-0 sm:flex-row sm:items-start
-        sm:justify-between"
+      className="border-base-300 flex flex-col gap-3 border-b py-4 last:border-b-0 sm:flex-row
+        sm:items-start sm:justify-between"
     >
       <div className="min-w-0 flex-1">
         <p className="font-medium">
           {user.firstName} {user.lastName}
         </p>
-        <p className="text-base-content/70 text-sm">{contact}</p>
+        <p className="text-base-content/70 text-sm">
+          {methodLabel} · {contact}
+        </p>
         <div className="mt-1 flex flex-wrap gap-1">
           {user.primaryWorksite && (
             <span className="badge badge-outline badge-sm">{user.primaryWorksite}</span>
@@ -89,7 +92,6 @@ export default function UserOfferRow({
         <SendOfferButton
           ticketId={ticketId}
           userId={user.id}
-          method={method}
           disabled={disabled}
           disabledReason={disabledReason}
           hasPriorOffer={lastOfferAt !== null}

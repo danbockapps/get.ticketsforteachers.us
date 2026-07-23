@@ -2,25 +2,17 @@ import Link from 'next/link'
 import {notFound, redirect} from 'next/navigation'
 import UserOfferRow from '@/app/distributor/tickets/[id]/offer/UserOfferRow'
 import {computeCooldownMap} from '@/app/distributor/tickets/[id]/offer/cooldown'
-import type {OfferMethod} from '@/app/distributor/tickets/[id]/offer/actions'
 import {formatEventAt} from '@/app/distributor/format'
 import {requireDistributor} from '@/lib/auth'
 import {db} from '@/lib/db'
+import {resolveOfferMethod} from '@/lib/offerMethod'
 import {ticketOffers, tickets, users} from '@/lib/schema'
 import {smsConsentUserIds} from '@/lib/consent'
 import {and, desc, eq} from 'drizzle-orm'
 
-export default async function OfferTicketPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{id: string}>
-  searchParams: Promise<{method?: string}>
-}) {
+export default async function OfferTicketPage({params}: {params: Promise<{id: string}>}) {
   const {id: idParam} = await params
   const id = Number(idParam)
-  const {method: methodRaw} = await searchParams
-  const method: OfferMethod = methodRaw === 'sms' ? 'sms' : 'email'
   const {domains} = await requireDistributor()
 
   if (!Number.isInteger(id)) notFound()
@@ -38,6 +30,7 @@ export default async function OfferTicketPage({
       emailVerified: users.emailVerified,
       phone: users.phone,
       phoneVerified: users.phoneVerified,
+      contactMethod: users.contactMethod,
       eventPreferences: users.eventPreferences,
       primaryWorksite: users.primaryWorksite,
     })
@@ -60,9 +53,6 @@ export default async function OfferTicketPage({
 
   const cooldownByUser = computeCooldownMap(lastOfferByUser)
 
-  const emailTabHref = `/distributor/tickets/${ticket.id}/offer`
-  const smsTabHref = `/distributor/tickets/${ticket.id}/offer?method=sms`
-
   return (
     <div className="bg-base-200 min-h-screen py-8">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4">
@@ -84,22 +74,9 @@ export default async function OfferTicketPage({
             <p className="text-base-content/50 mt-2 text-xs">
               Users in <span className="font-mono">@{ticket.domain}</span>
             </p>
-            <div role="tablist" className="tabs tabs-boxed mt-3 self-start">
-              <Link
-                href={emailTabHref}
-                role="tab"
-                className={`tab ${method === 'email' ? 'tab-active' : ''}`}
-              >
-                Email
-              </Link>
-              <Link
-                href={smsTabHref}
-                role="tab"
-                className={`tab ${method === 'sms' ? 'tab-active' : ''}`}
-              >
-                SMS
-              </Link>
-            </div>
+            <p className="text-base-content/50 text-xs">
+              Each offer is sent by the recipient’s preferred contact method.
+            </p>
           </div>
         </div>
 
@@ -119,7 +96,7 @@ export default async function OfferTicketPage({
                   key={u.id}
                   ticketId={ticket.id}
                   user={{...u, smsConsent: consentedUserIds.has(u.id)}}
-                  method={method}
+                  method={resolveOfferMethod(u.contactMethod, ticket.eventAt)}
                   lastOfferAt={lastOfferByUser.get(u.id) ?? null}
                   withinCooldown={cooldownByUser.get(u.id) ?? false}
                 />

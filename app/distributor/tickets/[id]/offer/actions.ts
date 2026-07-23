@@ -9,11 +9,12 @@ import {checkOfferSmsWindow} from '@/lib/quietHours'
 import {hasSmsConsent} from '@/lib/consent'
 import {logTicketEvent} from '@/lib/ticketEvents'
 import {logAction} from '@/lib/logger'
+import {resolveOfferMethod} from '@/lib/offerMethod'
 import {generateSecret} from '@/lib/tokens'
 import {and, desc, eq} from 'drizzle-orm'
 import {revalidatePath} from 'next/cache'
 
-export type OfferMethod = 'email' | 'sms'
+export type {OfferMethod} from '@/lib/offerMethod'
 export type SendOfferState = {error: string; key: number} | null
 
 export async function sendOffer(
@@ -22,11 +23,6 @@ export async function sendOffer(
 ): Promise<SendOfferState> {
   const ticketId = Number(formData.get('ticketId'))
   const userId = (formData.get('userId') as string) ?? ''
-  const methodRaw = (formData.get('method') as string) ?? 'email'
-  if (methodRaw !== 'email' && methodRaw !== 'sms') {
-    return {error: 'Invalid method.', key: Date.now()}
-  }
-  const method: OfferMethod = methodRaw
 
   const {user: distributor, domains} = await requireDistributor()
 
@@ -45,6 +41,9 @@ export async function sendOffer(
     return fail('User is not in this ticket’s domain.')
   }
   if (!recipient.workEmailVerified) return fail('User’s work email is not verified.')
+
+  // The recipient's own contact preference decides the channel.
+  const method = resolveOfferMethod(recipient.contactMethod, ticket.eventAt)
 
   if (method === 'email') {
     if (!recipient.emailVerified) return fail('User’s personal email is not verified.')
